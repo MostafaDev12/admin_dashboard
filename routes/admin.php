@@ -19,7 +19,10 @@ use App\Http\Controllers\Admin\LoginController;
  
 Route::prefix('admin')->group(function() {
 
-  //------------ ADMIN DASHBOARD & PROFILE SECTION ------------
+
+  Route::middleware('auth.admin')->group(function () {
+   
+     //------------ ADMIN DASHBOARD & PROFILE SECTION ------------
   Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
   Route::get('/profile',  [DashboardController::class, 'profile'])->name('admin.profile');
   Route::post('/profile/update', [DashboardController::class, 'profileupdate'])->name('admin.profile.update');
@@ -27,7 +30,10 @@ Route::prefix('admin')->group(function() {
   Route::post('/password/update',  [DashboardController::class, 'changepass'])->name('admin.password.update');
   //------------ ADMIN DASHBOARD & PROFILE SECTION ENDS ------------
 
+  
 
+});
+ 
 
 //------------ ADMIN LOGIN SECTION ------------
 

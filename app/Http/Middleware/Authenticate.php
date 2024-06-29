@@ -21,11 +21,11 @@ class Authenticate extends Middleware
      public function handle($request, Closure $next, ...$guards)
      {
          // Your custom logic here
-      if (!is_null(request()->user())) {
-            return $next($request);
-        } else {
-            return redirect('admin/login');
-        }
+    //   if (!is_null(request()->user())) {
+    //         return $next($request);
+    //     } else {
+    //         return redirect('login');
+    //     }
       //   return parent::handle($request, $next, ...$guards);
      }
     // protected function redirectTo($request)
