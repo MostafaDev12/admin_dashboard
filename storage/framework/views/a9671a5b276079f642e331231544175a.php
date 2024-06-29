@@ -22,12 +22,12 @@
                     <div class="text-center mt-sm-5 mb-4 text-white-50">
                         <div>
                             <a href="index" class="d-inline-block auth-logo">
-                                <img src="" alt="" height="20">
+                                <img src="<?php echo e(URL::asset('build/images/cangrow.png')); ?>" alt="" height="70">
                             </a>
 
 
                         </div>
-                        <p class="mt-3 fs-15 fw-medium">Premium Admin & Dashboard Template</p>
+                        <p class="mt-3 fs-15 fw-medium">Premium Admin & Dashboard</p>
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                                 <p class="text-muted">Sign in to continue to Dashboard.</p>
                             </div>
                             <div class="p-2 mt-4">
-                                <form action="<?php echo e(route('admin.login.submit')); ?>" method="POST">
+                                <form  id="loginform"  action="<?php echo e(route('admin.login.submit')); ?>" method="POST">
                                     <?php echo csrf_field(); ?>
                                     <div class="mb-3">
                                         <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
@@ -105,7 +105,7 @@ unset($__errorArgs, $__bag); ?>
                                     </div>
 
                                     <div class="mt-4">
-                                        <button class="btn btn-success w-100" type="submit">Sign In</button>
+                                        <button class="btn btn-success w-100 submit-btn" type="submit">Sign In</button>
                                     </div>
 
                                 </form>
@@ -147,6 +147,48 @@ unset($__errorArgs, $__bag); ?>
 <script src="<?php echo e(URL::asset('build/js/pages/particles.app.js')); ?>"></script>
 <script src="<?php echo e(URL::asset('build/js/pages/password-addon.init.js')); ?>"></script>
 
+<script> // LOGIN FORM
+
+    $("#loginform").on('submit',function(e){
+      e.preventDefault();
+      $('button.submit-btn').prop('disabled',true);
+      $('.alert-info').show();
+      $('.alert-info p').html($('#authdata').val());
+          $.ajax({
+           method:"POST",
+           url:$(this).prop('action'),
+           data:new FormData(this),
+           dataType:'JSON',
+           contentType: false,
+           cache: false,
+           processData: false,
+           success:function(data)
+           {
+              if ((data.errors)) {
+              $('.alert-success').hide();
+              $('.alert-info').hide();
+              $('.alert-danger').show();
+              $('.alert-danger ul').html('');
+                for(var error in data.errors)
+                {
+                  $('.alert-danger p').html(data.errors[error]);
+                }
+              }
+              else
+              {
+                $('.alert-info').hide();
+                $('.alert-danger').hide();
+                $('.alert-success').show();
+                $('.alert-success p').html('Success !');
+                window.location = data;
+              }
+              $('button.submit-btn').prop('disabled',false);
+           }
+  
+          });
+  
+    });
+    </script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.master-without-nav', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\modern\resources\views/admin/login.blade.php ENDPATH**/ ?>

@@ -18,7 +18,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+       // $this->middleware('auth');
     }
 
     /**
@@ -28,10 +28,12 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        if (view()->exists($request->path())) {
-            return view($request->path());
-        }
-        return abort(404);
+        // if (view()->exists($request->path())) {
+        //     return view($request->path());
+        // }
+        // return abort(404);
+
+        return view('front.index');
     }
 
     public function root()
