@@ -43,8 +43,9 @@
                                 <h5 class="text-primary">Welcome Back !</h5>
                                 <p class="text-muted">Sign in to continue to Dashboard.</p>
                             </div>
-                            <div class="p-2 mt-4">
-                                <form  id="loginform"  action="{{ route('admin.login.submit') }}" method="POST">
+                            <div class="p-2 mt-4"> 
+                                {{-- id="loginform"  --}}
+                                <form  action="{{ route('admin.login.submit') }}" method="POST">
                                     @csrf
                                     <div class="mb-3">
                                         <label for="username" class="form-label">Username <span class="text-danger">*</span></label>

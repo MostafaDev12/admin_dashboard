@@ -43,11 +43,18 @@ class LoginController extends Controller
       // Attempt to log the user in
       if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
         // if successful, then redirect to their intended location
-        return response()->json(route('admin.dashboard'));
+       // return response()->json(route('admin.dashboard'));
+
+       return redirect()->route('admin.dashboard');
       }
 
       // if unsuccessful, then redirect back to the login with the form data
-          return response()->json(array('errors' => [ 0 => 'Credentials Doesn\'t Match !' ]));     
+      //    return response()->json(array('errors' => [ 0 => 'Credentials Doesn\'t Match !' ]));  
+      
+      return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+        'password' => 'The provided credentials do not match our records.',
+       ])->onlyInput('email');
     }
 
     public function showForgotForm()

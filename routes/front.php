@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,5 +13,17 @@ use Illuminate\Support\Facades\Auth;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+Route::middleware('IpLocation')->group(function () {
+   
+    //------------ ADMIN DASHBOARD & PROFILE SECTION ------------
+
+ Route::get('/', [HomeController::class, 'index'])->name('front.index');
+
+
+});
+
+
 
  

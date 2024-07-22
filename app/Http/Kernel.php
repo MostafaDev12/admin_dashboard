@@ -72,6 +72,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'maintenance' => \App\Http\Middleware\MaintenanceMode::class,
         'permissions' => \App\Http\Middleware\Permissions::class,
+        'IpLocation' => \App\Http\Middleware\IpLocation::class,
         'super' => \App\Http\Middleware\SuperAdmin::class,
     ];
 }

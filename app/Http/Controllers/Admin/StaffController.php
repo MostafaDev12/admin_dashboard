@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use DataTables;
-use App\Models\User as Admin;
-use App\Models\Role;
+use App\Models\Admin;
 use Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Input; 
 use Validator;
 
 
@@ -16,38 +15,43 @@ class StaffController extends Controller
 {
     public function __construct()
     {
-    //    $this->middleware('admin');
+        $this->middleware('auth:admin');
     }
 
     //*** JSON Request
- 
+    public function datatables()
+    {
+         $datas = Admin::where('id','!=',1)->where('id','!=',Auth::guard('admin')->user()->id)->orderBy('id')->get();
+         //--- Integrating This Collection Into Datatables
+         return Datatables::of($datas)
+                            ->addColumn('role', function(Admin $data) {
+                                $role = $data->role_id == 0 ? 'No Role' : $data->role->name;
+                                return $role;
+                            }) 
+                            ->addColumn('action', function(Admin $data) {
+                                $delete ='<a href="javascript:;" data-href="' . route('admin-staff-delete',$data->id) . '" data-bs-toggle="modal" data-bs-target="#confirm-delete" class="delete  btn btn-sm btn-danger"><i class="las la-trash"></i></a>';
+                                return '<div class="action-list"><a data-href="' . route('admin-staff-show',$data->id) . '" class="view details-width  btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#modal1"> <i class="las la-eye"></i>تفاصيل</a>
+                                <a data-href="' . route('admin-staff-edit',$data->id) . '" class="edit  btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#modal1"> <i class="las la-edit"></i>تعديل</a>'.$delete.'</div>';
+                            }) 
+                            ->rawColumns(['action'])
+                            ->toJson(); //--- Returning Json Data To Client Side
+    }
+
     //*** GET Request
   	public function index()
     {
-        
-        $business_id = request()->session()->get('user.business_id');
-
-
-        $datas = Admin::where('type',2)->where('id','!=',Auth::user()->id)->where('business_id', $business_id)->orderBy('id')->get();
-
-        return view('admin.staff.index',compact('datas'));
+        return view('admin.staff.index');
     }
 
     //*** GET Request
     public function create()
     {
-        $business_id = request()->session()->get('user.business_id');
-
-        $roles = Role::where('business_id', $business_id)->get();
-        return view('admin.staff.create',compact('roles'));
+        return view('admin.staff.create');
     }
 
     //*** POST Request
     public function store(Request $request)
     {
-
-        $business_id = request()->session()->get('user.business_id');
-
         //--- Validation Section
         $rules = [
                'photo'      => 'required|mimes:jpeg,jpg,png,svg',
@@ -69,45 +73,33 @@ class StaffController extends Controller
             $file->move('assets/images/admins',$name);           
             $input['photo'] = $name;
         } 
-        $input['type'] = 2;
-        $input['status'] = 1;
-        $input['business_id'] = $business_id;
+        $input['role'] = 'Staff';
         $input['password'] = bcrypt($request['password']);
         $data->fill($input)->save();
         //--- Logic Section Ends
 
         //--- Redirect Section        
         $msg = 'New Data Added Successfully.';
-
-        return response()->json([
-
-            'status'  => true,
-            'msg'   =>   $msg
-
-        ], 200);    
+        return response()->json($msg);      
         //--- Redirect Section Ends    
     }
 
 
     public function edit($id)
     {
-
-        $business_id = request()->session()->get('user.business_id');
-
         $data = Admin::findOrFail($id);  
-        $roles = Role::where('business_id', $business_id)->get();
-        return view('admin.staff.edit',compact('data','roles'));
+        return view('admin.staff.edit',compact('data'));
     }
 
     public function update(Request $request,$id)
     {
         //--- Validation Section
-        if($id != Auth::user()->id)
+        if($id != Auth::guard('admin')->user()->id)
         {
             $rules =
             [
                 'photo' => 'mimes:jpeg,jpg,png,svg',
-                'email' => 'unique:users,email,'.$id
+                'email' => 'unique:admins,email,'.$id
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -134,25 +126,15 @@ class StaffController extends Controller
                 $input['password'] = $data->password;
             }
             else{
-                $input['password'] = Hash::make($request->password);
+                $input['password'] = bcrypt($request->password);
             }
             $data->update($input);
             $msg = 'Data Updated Successfully.';
-            return response()->json([
-
-                'status'  => true,
-                'msg'   =>   $msg
-    
-            ], 200); 
+            return response()->json($msg);
         }
         else{
             $msg = 'You can not change your role.';
-            return response()->json([
-
-                'status'  => false,
-                'msg'   =>   $msg
-    
-            ], 200);        
+            return response()->json($msg);            
         }
  
     }
@@ -167,31 +149,17 @@ class StaffController extends Controller
     //*** GET Request Delete
     public function destroy($id)
     {
-    	
-        $data = Admin::findOrFail($id);
-
-        if($data->type == 1 || $data->type == 4 )
+    	if($id == 1)
     	{
-            $msg =  "You don't have access to remove this admin";
-
-            return response()->json([
-
-                'status'  => false,
-                'msg'   =>   $msg
-    
-            ], 200);   
+        return "You don't have access to remove this admin";
     	}
+        $data = Admin::findOrFail($id);
         //If Photo Doesn't Exist
         if($data->photo == null){
             $data->delete();
             //--- Redirect Section     
             $msg = 'Data Deleted Successfully.';
-            return response()->json([
-
-                'status'  => false,
-                'msg'   =>   $msg
-    
-            ], 200);     
+            return response()->json($msg);      
             //--- Redirect Section Ends     
         }
         //If Photo Exist
@@ -201,31 +169,7 @@ class StaffController extends Controller
         $data->delete();
         //--- Redirect Section     
         $msg = 'Data Deleted Successfully.';
-
-        return response()->json([
-
-            'status'  => false,
-            'msg'   =>   $msg
-
-        ], 200);     
+        return response()->json($msg);      
         //--- Redirect Section Ends    
-    }
-
-    
-    public function statusupdate($id,$status)
-    {
-        $user = Admin::findOrFail($id);
-        $user->status = $status;
-        $user->update();
-        //--- Redirect Section     
-        $msg = trans('Update Success');
-        
-        return response()->json([
-            'status' => true,
-            'msg'   =>  $msg
-        ], 200);
-        //--- Redirect Section Ends 
-
-
     }
 }

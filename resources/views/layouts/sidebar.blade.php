@@ -3,7 +3,7 @@
     <!-- LOGO -->
     <div class="navbar-brand-box">
         <!-- Dark Logo-->
-        <a href="index" class="logo logo-dark">
+        <a href="{{ route('admin.dashboard') }}" class="logo logo-dark">
             <span class="logo-sm">
                 <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
             </span>
@@ -12,7 +12,7 @@
             </span>
         </a>
         <!-- Light Logo-->
-        <a href="index" class="logo logo-light">
+        <a href="{{ route('admin.dashboard') }}" class="logo logo-light">
             <span class="logo-sm">
                 <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
             </span>
@@ -20,7 +20,8 @@
                 <img src="{{ URL::asset('build/images/cangrow.png') }}" alt="" height="60">
             </span>
         </a>
-        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
+        <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover"
+            id="vertical-hover">
             <i class="ri-record-circle-line"></i>
         </button>
     </div>
@@ -33,14 +34,55 @@
             <ul class="navbar-nav" id="navbar-nav">
                 <li class="menu-title"><span>@lang('translation.menu')</span></li>
                 <li class="nav-item">
-                    <a class="nav-link  " href="{{ route('admin.dashboard') }}"  aria-controls="sidebarDashboards">
+                    <a class="nav-link  " href="{{ route('admin.dashboard') }}" aria-controls="sidebarDashboards">
                         <i class="las la-tachometer-alt"></i> <span>@lang('translation.dashboards')</span>
-                    </a>    
+                    </a>
                 </li> <!-- end Dashboard Menu -->
-                
+
                 <li class="menu-title"><i class="ri-more-fill"></i> <span>@lang('translation.pages')</span></li>
 
-               
+                @if (Auth::guard('admin')->user()->sectionCheck('general_settings'))
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="#general" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="general">
+                            <i class="las la-cog"></i> <span data-key="t-General_Settings"> @lang('translation.settings')</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="general">
+                            <ul class="nav nav-sm flex-column">
+
+                                <li class="nav-item">
+                                    <a href="{{ route('admin-gs-logo') }}" class="nav-link" data-key="t-Logo"> @lang('translation.logo')
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="{{ route('admin-gs-contents') }}" class="nav-link"
+                                        data-key="t-Website_Contents"> @lang('translation.content') </a>
+                                </li>
+                                @if (Auth::guard('admin')->user()->sectionCheck('super'))
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin-role-index') }}" class="nav-link"
+                                            data-key="t-Manage_Roles">    @lang('translation.role_mangment') </a>
+                                    </li>
+                                @endif
+
+                                @if (Auth::guard('admin')->user()->sectionCheck('manage_staffs'))
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin-staff-index') }}" class="nav-link"
+                                            data-key="t-Manage_Stauff">   @lang('translation.staff_mangment')   </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </div>
+                    </li> <!-- end Dashboard Menu -->
+                @endif
+                @if (Auth::guard('admin')->user()->sectionCheck('super'))
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('admin-cache-clear') }}">
+                            <i class="las la-flask"></i> <span data-key="t-Clear_Cache">    @lang('translation.cache_clear') </span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
         <!-- Sidebar -->

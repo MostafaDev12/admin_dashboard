@@ -16,6 +16,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Counter;
+use App\Models\Visitor;
 
 class DashboardController extends Controller
 {
@@ -31,14 +32,15 @@ class DashboardController extends Controller
         $days = "";
         $sales = "";
 
-        
+        $visitors = Visitor::get();
+
         $referrals = Counter::where('type','referral')->orderBy('total_count','desc')->take(5)->get();
         
         $browsers = Counter::where('type','browser')->orderBy('total_count','desc')->take(5)->get();
  
          
 
-        return view('admin.dashboard',compact('referrals','browsers'));
+        return view('admin.dashboard',compact('referrals','browsers','visitors'));
     }
  
     public function profile()

@@ -13,21 +13,34 @@ class RoleController extends Controller
 {
     public function __construct()
     {
-     //   $this->middleware('admin');
+        $this->middleware('auth.admin');
     }
 
     //*** JSON Request
-  
+    public function datatables()
+    {
+         $datas = Role::orderBy('id','desc')->get();
+         //--- Integrating This Collection Into Datatables
+         return Datatables::of($datas)
+                            ->addColumn('section', function(Role $data) {
+                                $details =  str_replace('_',' ',$data->section);
+                                $details =  ucwords($details);
+                                return  '<div>'.$details.'</div>';
+                            })
+                            ->addColumn('action', function(Role $data) {
+                                return '<div class="action-list">
+                                <a class=" btn btn-sm btn-secondary" href="' . route('admin-role-edit',$data->id) . '"> <i class="las la-edit"></i>تعديل</a>
+                                <a href="javascript:;" data-href="' . route('admin-role-delete',$data->id) . '" data-bs-toggle="modal" data-bs-target="#confirm-delete" class="delete  btn btn-sm btn-danger"><i class="las la-trash"></i></a>
+                                </div>';
+                            }) 
+                            ->rawColumns(['section','action'])
+                            ->toJson(); //--- Returning Json Data To Client Side
+    }
 
     //*** GET Request
     public function index()
     {
-        $business_id = request()->session()->get('user.business_id');
-
-        $datas = Role::where('business_id',$business_id)->orderBy('id','desc')->get();
-
-
-        return view('admin.role.index',compact('datas'));
+        return view('admin.role.index');
     }
 
     //*** GET Request
@@ -39,9 +52,6 @@ class RoleController extends Controller
     //*** POST Request
     public function store(Request $request)
     {
-
-        $business_id = request()->session()->get('user.business_id');
-
         //--- Validation Section
         $rules = [
                'photo'      => '',
@@ -63,23 +73,14 @@ class RoleController extends Controller
         }
         else{
             $input['section'] = '';
-           
         }
 
-        $input['business_id'] = $business_id;
-        
         $data->fill($input)->save();
         //--- Logic Section Ends
       
         //--- Redirect Section
         $msg = 'New Data Added Successfully.<a href="'.route('admin-role-index').'">View Role Lists.</a>';
-        
-        return response()->json([
-
-            'status'  => true,
-            'msg'   =>   $msg
-
-        ], 200);
+        return response()->json($msg);
         //--- Redirect Section Ends    
 
 
@@ -122,13 +123,7 @@ class RoleController extends Controller
 
         //--- Redirect Section
         $msg = 'Data Updated Successfully.<a href="'.route('admin-role-index').'">View Role Lists.</a>';
-      
-        return response()->json([
-
-            'status'  => true,
-            'msg'   =>   $msg
-
-        ], 200);
+        return response()->json($msg);
         //--- Redirect Section Ends    
 
     }
@@ -140,13 +135,7 @@ class RoleController extends Controller
         $data->delete();
         //--- Redirect Section     
         $msg = 'Data Deleted Successfully.';
-        
-        return response()->json([
-
-            'status'  => true,
-            'msg'   =>   $msg
-
-        ], 200);   
+        return response()->json($msg);      
         //--- Redirect Section Ends     
     }
 }
