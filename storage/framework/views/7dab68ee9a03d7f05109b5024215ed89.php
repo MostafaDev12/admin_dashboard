@@ -1,22 +1,21 @@
-@extends('layouts.master')
-@section('title')
-    @lang('translation.logos')
-@endsection
-@section('css')
-    <link href="{{ URL::asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="{{ URL::asset('build/libs/filepond/filepond.min.css') }}" type="text/css" />
+<?php $__env->startSection('title'); ?>
+    <?php echo app('translator')->get('translation.logos'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('css'); ?>
+    <link href="<?php echo e(URL::asset('build/libs/dropzone/dropzone.css')); ?>" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo e(URL::asset('build/libs/filepond/filepond.min.css')); ?>" type="text/css" />
     <link rel="stylesheet"
-        href="{{ URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css') }}">
-@endsection
-@section('content')
-    @component('components.breadcrumb')
-        @slot('li_1')
+        href="<?php echo e(URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css')); ?>">
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+    <?php $__env->startComponent('components.breadcrumb'); ?>
+        <?php $__env->slot('li_1'); ?>
             Dashboards
-        @endslot
-        @slot('title')
+        <?php $__env->endSlot(); ?>
+        <?php $__env->slot('title'); ?>
             website logos
-        @endslot 
-    @endcomponent
+        <?php $__env->endSlot(); ?> 
+    <?php echo $__env->renderComponent(); ?>
 
  
        
@@ -29,17 +28,18 @@
                             <h4 class="card-title mb-0">English Logo</h4>
                         </div><!-- end card header -->
 
-                        <form class="uplogo-form" id="geniusform" action="{{ route('admin-gs-update') }}" method="POST"
+                        <form class="uplogo-form" id="geniusform" action="<?php echo e(route('admin-gs-update')); ?>" method="POST"
                             enctype="multipart/form-data">
-                            {{ csrf_field() }}
+                            <?php echo e(csrf_field()); ?>
 
-                            @include('includes.admin.form-both')
+
+                            <?php echo $__env->make('includes.admin.form-both', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <div class="card-body">
                             <p class="text-muted">FilePond is a JavaScript library with profile picture-shaped file
                                 upload variation.</p>
                                 <div class="currrent-logo" style="text-align: center;">
                                     <img style="width: 171px;"
-                                        src="{{ $gs->logo_en ? asset('assets/images/' . $gs->logo_en) : asset('assets/images/noimage.png') }}"
+                                        src="<?php echo e($gs->logo_en ? asset('assets/images/' . $gs->logo_en) : asset('assets/images/noimage.png')); ?>"
                                         alt="">
                                 </div>
                             <div class="avatar-xl mx-auto">
@@ -48,7 +48,7 @@
                             </div>
 
                         <div class="submit-area mb-4">
-                            <button type="submit" class="submit-btn btn btn-primary">{{ __('Submit') }}</button>
+                            <button type="submit" class="submit-btn btn btn-primary"><?php echo e(__('Submit')); ?></button>
                         </div>
 
                         </div>
@@ -65,17 +65,18 @@
                             <h4 class="card-title mb-0">Arabic Logo</h4>
                         </div><!-- end card header -->
 
-                        <form class="uplogo-form" id="geniusform" action="{{ route('admin-gs-update') }}" method="POST"
+                        <form class="uplogo-form" id="geniusform" action="<?php echo e(route('admin-gs-update')); ?>" method="POST"
                             enctype="multipart/form-data">
-                            {{ csrf_field() }}
+                            <?php echo e(csrf_field()); ?>
 
-                            @include('includes.admin.form-both')
+
+                            <?php echo $__env->make('includes.admin.form-both', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <div class="card-body">
                             <p class="text-muted">FilePond is a JavaScript library with profile picture-shaped file
                                 upload variation.</p>
                                 <div class="currrent-logo" style="text-align: center;">
                                     <img style="width: 171px;"
-                                        src="{{ $gs->logo_ar ? asset('assets/images/' . $gs->logo_ar) : asset('assets/images/noimage.png') }}"
+                                        src="<?php echo e($gs->logo_ar ? asset('assets/images/' . $gs->logo_ar) : asset('assets/images/noimage.png')); ?>"
                                         alt="">
                                 </div>
                             <div class="avatar-xl mx-auto">
@@ -84,7 +85,7 @@
                             </div>
 
                         <div class="submit-area mb-4">
-                            <button type="submit" class="submit-btn btn btn-primary">{{ __('Submit') }}</button>
+                            <button type="submit" class="submit-btn btn btn-primary"><?php echo e(__('Submit')); ?></button>
                         </div>
 
                         </div>
@@ -101,17 +102,18 @@
                             <h4 class="card-title mb-0">france Logo</h4>
                         </div><!-- end card header -->
 
-                        <form class="uplogo-form" id="geniusform" action="{{ route('admin-gs-update') }}" method="POST"
+                        <form class="uplogo-form" id="geniusform" action="<?php echo e(route('admin-gs-update')); ?>" method="POST"
                             enctype="multipart/form-data">
-                            {{ csrf_field() }}
+                            <?php echo e(csrf_field()); ?>
 
-                            @include('includes.admin.form-both')
+
+                            <?php echo $__env->make('includes.admin.form-both', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <div class="card-body">
                             <p class="text-muted">FilePond is a JavaScript library with profile picture-shaped file
                                 upload variation.</p>
                                 <div class="currrent-logo" style="text-align: center;">
                                     <img style="width: 171px;"
-                                        src="{{ $gs->logo_fr ? asset('assets/images/' . $gs->logo_fr) : asset('assets/images/noimage.png') }}"
+                                        src="<?php echo e($gs->logo_fr ? asset('assets/images/' . $gs->logo_fr) : asset('assets/images/noimage.png')); ?>"
                                         alt="">
                                 </div>
                             <div class="avatar-xl mx-auto">
@@ -120,7 +122,7 @@
                             </div>
 
                         <div class="submit-area mb-4">
-                            <button type="submit" class="submit-btn btn btn-primary">{{ __('Submit') }}</button>
+                            <button type="submit" class="submit-btn btn btn-primary"><?php echo e(__('Submit')); ?></button>
                         </div>
 
                         </div>
@@ -137,17 +139,18 @@
                             <h4 class="card-title mb-0">favicon</h4>
                         </div><!-- end card header -->
 
-                        <form class="uplogo-form" id="geniusform" action="{{ route('admin-gs-update') }}" method="POST"
+                        <form class="uplogo-form" id="geniusform" action="<?php echo e(route('admin-gs-update')); ?>" method="POST"
                             enctype="multipart/form-data">
-                            {{ csrf_field() }}
+                            <?php echo e(csrf_field()); ?>
 
-                            @include('includes.admin.form-both')
+
+                            <?php echo $__env->make('includes.admin.form-both', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <div class="card-body">
                             <p class="text-muted">FilePond is a JavaScript library with profile picture-shaped file
                                 upload variation.</p>
                                 <div class="currrent-logo" style="text-align: center;">
                                     <img style="width: 171px;"
-                                        src="{{ $gs->favicon ? asset('assets/images/' . $gs->favicon) : asset('assets/images/noimage.png') }}"
+                                        src="<?php echo e($gs->favicon ? asset('assets/images/' . $gs->favicon) : asset('assets/images/noimage.png')); ?>"
                                         alt="">
                                 </div>
                             <div class="avatar-xl mx-auto">
@@ -156,7 +159,7 @@
                             </div>
 
                         <div class="submit-area mb-4">
-                            <button type="submit" class="submit-btn btn btn-primary">{{ __('Submit') }}</button>
+                            <button type="submit" class="submit-btn btn btn-primary"><?php echo e(__('Submit')); ?></button>
                         </div>
 
                         </div>
@@ -171,20 +174,22 @@
             </div>
          
    
-@endsection
-@section('script')
-    <script src="{{ URL::asset('build/libs/dropzone/dropzone-min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/filepond/filepond.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js') }}">
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('script'); ?>
+    <script src="<?php echo e(URL::asset('build/libs/dropzone/dropzone-min.js')); ?>"></script>
+    <script src="<?php echo e(URL::asset('build/libs/filepond/filepond.min.js')); ?>"></script>
+    <script src="<?php echo e(URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js')); ?>">
     </script>
     <script
-        src="{{ URL::asset('build/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js') }}">
+        src="<?php echo e(URL::asset('build/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js')); ?>">
     </script>
     <script
-        src="{{ URL::asset('build/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js') }}">
+        src="<?php echo e(URL::asset('build/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js')); ?>">
     </script>
-    <script src="{{ URL::asset('build/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js') }}"></script>
+    <script src="<?php echo e(URL::asset('build/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js')); ?>"></script>
 
-    <script src="{{ URL::asset('build/js/pages/form-file-upload.init.js') }}"></script>
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
-@endsection
+    <script src="<?php echo e(URL::asset('build/js/pages/form-file-upload.init.js')); ?>"></script>
+    <script src="<?php echo e(URL::asset('build/js/app.js')); ?>"></script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\modern\resources\views/admin/generalsetting/logo.blade.php ENDPATH**/ ?>

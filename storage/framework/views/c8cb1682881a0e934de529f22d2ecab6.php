@@ -19,8 +19,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 
-<script src="<?php echo e(URL::asset('build/js/pages/datatables.init.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('build/js/toastr.js')); ?>"></script>
+<script>
 
+var admin_loader = 0;
+</script>
+<script src="<?php echo e(URL::asset('build/js/pages/datatables.init.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('build/js/myscript.js')); ?>"></script>
+
+<script src="<?php echo e(URL::asset('build/js/app.js')); ?>"></script>
 <?php echo $__env->yieldContent('script'); ?>
 <?php echo $__env->yieldContent('script-bottom'); ?>
-<?php /**PATH C:\wamp64\www\modern\resources\views/layouts/vendor-scripts.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\modern\resources\views/layouts/vendor-scripts.blade.php ENDPATH**/ ?>

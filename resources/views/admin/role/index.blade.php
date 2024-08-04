@@ -15,9 +15,9 @@
             roles
         @endslot
     @endcomponent
- -
+ 
           <input type="hidden" id="headerdata" value="{{ __('الصلاحيه') }}">
-                         <div class="col-lg-12" style="padding-top: 80px; padding-left: 10px; padding-bottom: 20px; max-width: 100%">
+                         <div class="col-lg-12"  >
                             <div class="card">
                                 <div class="card-header">
                                    	@include('includes.admin.form-success')

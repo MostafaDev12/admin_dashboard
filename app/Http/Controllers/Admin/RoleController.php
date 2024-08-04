@@ -80,7 +80,8 @@ class RoleController extends Controller
       
         //--- Redirect Section
         $msg = 'New Data Added Successfully.<a href="'.route('admin-role-index').'">View Role Lists.</a>';
-        return response()->json($msg);
+       //   return redirect(route('admin-role-index'))->with($msg);
+      return response()->json($msg);
         //--- Redirect Section Ends    
 
 

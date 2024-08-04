@@ -43,4 +43,4 @@
 </body>
 
 </html>
-<?php /**PATH C:\wamp64\www\modern\resources\views/layouts/master.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\modern\resources\views/layouts/master.blade.php ENDPATH**/ ?>

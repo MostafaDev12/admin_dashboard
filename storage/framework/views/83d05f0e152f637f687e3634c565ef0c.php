@@ -92,4 +92,4 @@
 <!-- Left Sidebar End -->
 <!-- Vertical Overlay-->
 <div class="vertical-overlay"></div>
-<?php /**PATH C:\wamp64\www\modern\resources\views/layouts/sidebar.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\modern\resources\views/layouts/sidebar.blade.php ENDPATH**/ ?>

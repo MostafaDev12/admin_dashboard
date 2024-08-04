@@ -17,12 +17,11 @@
     @endcomponent
 
 
- <div class="col-lg-12" style="padding-top: 80px; padding-left: 10px; padding-bottom: 20px; max-width: 100%">
+ <div class="col-lg-12"  >
                             <div class="card">
                                 <div class="card-header">
-                                     <h4 class="heading">{{ __(' اضافه صلاحيه  ') }} <a class="add-btn" href="{{route('admin-role-index')}}"><i class="fas fa-arrow-left"></i> {{ __(' الرجوع') }}</a></h4>
-                                   	@include('includes.admin.form-success')
-
+                                   
+                                    
 
                                 </div>
                                 <div class="card-body">
@@ -71,53 +70,7 @@
                             <label class="form-check-label" for="super">{{ __('Manage Role & Cache clear') }}  </label>
                         </div>
 
-                        <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="candidates" role="switch" name="section[]"  id="candidates" >
-                            <label class="form-check-label" for="candidates">{{ __('المرشحين') }}  </label>
-                        </div>
-
-
-                        <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="campaigns" role="switch" name="section[]"  id="campaigns" >
-                            <label class="form-check-label" for="campaigns">{{ __('الحملات') }}  </label>
-                        </div>
-
-
-   <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="country" role="switch" name="section[]"  id="country" >
-                            <label class="form-check-label" for="country">{{ __('المحافظات') }}  </label>
-                        </div>
-
-
-   <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="tasks" role="switch" name="section[]"  id="tasks" >
-                            <label class="form-check-label" for="tasks">{{ __('المهام') }}  </label>
-                        </div>
-
-
-   <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="complaints_suggestions" role="switch" name="section[]"  id="complaints_suggestions" >
-                            <label class="form-check-label" for="complaints_suggestions">{{ __('المهام') }}  </label>
-                        </div>
-
-
-   <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="volunteers" role="switch" name="section[]"  id="volunteers" >
-                            <label class="form-check-label" for="volunteers">{{ __('المتطوعين فى الحمله') }}  </label>
-                        </div>
-
-
-   <!-- Switches Color -->
-                        <div class="form-check form-switch form-check-inline">
-                            <input class="form-check-input" type="checkbox"  value="complaints_suggestions" role="switch" name="section[]"  id="complaints_suggestions" >
-                            <label class="form-check-label" for="complaints_suggestions">{{ __('الشكاوى والمقترحات') }}  </label>
-                        </div>
+                        
 
 
 

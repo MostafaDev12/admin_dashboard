@@ -31,7 +31,7 @@ class GeneralSettingController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:admin');
+        $this->middleware('auth.admin');
     }
 
 
@@ -91,18 +91,24 @@ class GeneralSettingController extends Controller
                 $data->upload($name,$file,$data->about_us_small_photo);
                 $input['about_us_small_photo'] = $name;
             }
-            if ($file = $request->file('logo'))
+            if ($file = $request->file('logo_fr'))
             {
                 $name = time().$file->getClientOriginalName();
-                $data->upload_logo($name,$file,$data->logo);
-                $input['logo'] = $name;
+                $data->upload($name,$file,$data->logo_fr);
+                $input['logo_fr'] = $name;
+            }
+             if ($file = $request->file('logo_en'))
+            {
+                $name = time().$file->getClientOriginalName();
+                $data->upload($name,$file,$data->logo_en);
+                $input['logo_en'] = $name;
             }
             
-             if ($file = $request->file('logo_white'))
+             if ($file = $request->file('logo_ar'))
             {
                 $name = time().$file->getClientOriginalName();
-                $data->upload_logo($name,$file,$data->logo_white);
-                $input['logo_white'] = $name;
+                $data->upload($name,$file,$data->logo_ar);
+                $input['logo_ar'] = $name;
             }
             
                 if ($file = $request->file('feature_icon'))
@@ -365,12 +371,13 @@ class GeneralSettingController extends Controller
         $msg = trans('Update Success');
         
         
-        return response()->json([
+        return response()->json($msg);  
+        // return response()->json([
             
-            'status'  => true,
-            'msg'   =>   $msg
+        //     'status'  => true,
+        //     'msg'   =>   $msg
             
-        ],200);
+        // ],200);
         //--- Redirect Section Ends
         }
     }

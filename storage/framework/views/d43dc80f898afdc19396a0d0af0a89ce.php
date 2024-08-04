@@ -14,9 +14,9 @@
             roles
         <?php $__env->endSlot(); ?>
     <?php echo $__env->renderComponent(); ?>
- -
+ 
           <input type="hidden" id="headerdata" value="<?php echo e(__('الصلاحيه')); ?>">
-                         <div class="col-lg-12" style="padding-top: 80px; padding-left: 10px; padding-bottom: 20px; max-width: 100%">
+                         <div class="col-lg-12"  >
                             <div class="card">
                                 <div class="card-header">
                                    	<?php echo $__env->make('includes.admin.form-success', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
@@ -109,4 +109,4 @@
 
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\modern\resources\views/admin/role/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\modern\resources\views/admin/role/index.blade.php ENDPATH**/ ?>

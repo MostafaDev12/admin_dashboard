@@ -9,6 +9,7 @@
 <link href="{{ URL::asset('build/css/app.min.css') }}"  rel="stylesheet" type="text/css" />
 <!-- custom Css-->
 <link href="{{ URL::asset('build/css/custom.min.css') }}"  rel="stylesheet" type="text/css" />
+<link href="{{ URL::asset('build/css/toastr.css') }}"  rel="stylesheet" type="text/css" />
 {{-- @yield('css') --}}
 <!--datatable css-->
 <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
