@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Slider extends Model
+class Partner extends Model
 {
     
 
@@ -13,24 +13,19 @@ class Slider extends Model
      *
      * @var array<int, string>
      */
-    protected $table ='sliders';
+    protected $table ='partners';
     
      protected $appends = ['photo'];
 
 
     public function getPhotoAttribute()
     {
-        return url('/') . '/assets/images/slider/' . $this->attributes['photo'];
+        return url('/') . '/assets/images/partners/' . $this->attributes['photo'];
     }
     protected $fillable = [
         
         'photo',
-        'title_ar',
-        'title_en',
-        'title_fr',
-        'details_ar',
-        'details_en',
-        'details_fr',
+       
       
     ];
 

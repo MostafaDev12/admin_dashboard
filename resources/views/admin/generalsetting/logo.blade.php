@@ -3,10 +3,7 @@
     @lang('translation.logos')
 @endsection
 @section('css')
-    <link href="{{ URL::asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="{{ URL::asset('build/libs/filepond/filepond.min.css') }}" type="text/css" />
-    <link rel="stylesheet"
-        href="{{ URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css') }}">
+
 @endsection
 @section('content')
     @component('components.breadcrumb')
@@ -173,18 +170,6 @@
    
 @endsection
 @section('script')
-    <script src="{{ URL::asset('build/libs/dropzone/dropzone-min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/filepond/filepond.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js') }}">
-    </script>
-    <script
-        src="{{ URL::asset('build/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js') }}">
-    </script>
-    <script
-        src="{{ URL::asset('build/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js') }}">
-    </script>
-    <script src="{{ URL::asset('build/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js') }}"></script>
-
-    <script src="{{ URL::asset('build/js/pages/form-file-upload.init.js') }}"></script>
+   
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

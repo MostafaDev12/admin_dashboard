@@ -14,18 +14,42 @@ class Generalsetting extends Model
      'title_fr', 
      'title_ar' 
     ,  'footer_en', 'footer_ar', 'footer_fr'
-    ,'copyright','copyright_ar','phones' ,'emails' ,
+     ,'phones' ,'emails' ,
     'admin_loader', 'talkto','drift'
     ,'addresses_ar','addresses_en','addresses_fr', 'map', 
    
     'smtp_host','smtp_port','smtp_user','smtp_pass','from_email',
     'from_name' 
      ,'is_verification_email' 
+     ,'is_smtp' 
+     ,'is_capcha' 
 ];
 
     public $timestamps = false;
 
 
+
+    public function getLogoEnAttribute()
+    {
+        return !empty($this->attributes['logo_en']) ? url('/') . '/assets/images/' . $this->attributes['logo_en'] : '';
+    }
+
+
+
+    public function getLogoArAttribute()
+    {
+        return !empty($this->attributes['logo_ar']) ? url('/') . '/assets/images/' . $this->attributes['logo_ar'] : '';
+    }
+
+
+
+    public function getLogoFrAttribute()
+    {
+        return !empty($this->attributes['logo_fr']) ? url('/') . '/assets/images/' . $this->attributes['logo_fr'] : '';
+    }
+
+
+    
     public function upload($name,$file,$oldname)
     {
                 $file->move('assets/images',$name);

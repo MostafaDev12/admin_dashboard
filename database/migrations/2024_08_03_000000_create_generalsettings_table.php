@@ -47,7 +47,9 @@ return new class extends Migration
             $table->string('smtp_pass')->nullable();
             $table->string('from_email')->nullable();
             $table->string('from_name')->nullable();
-            $table->string('is_verification_email')->nullable();
+            $table->integer('is_verification_email')->nullable()->default(1);
+            $table->integer('is_smtp')->nullable()->default(1);
+            $table->integer('is_capcha')->nullable()->default(1);
          
         });
 
@@ -55,6 +57,12 @@ return new class extends Migration
             'title_en' => 'CangrowOnline',
             'title_ar' => 'CangrowOnline',
             'title_fr' => 'CangrowOnline',
+            'smtp_host' => 'in-v3.mailjet.com',
+            'smtp_port' => '587',
+            'smtp_user' => '0e05029e2dc70da691aa2223aa53c5be',
+            'smtp_pass' => '5df1b6242e86bce602c3fd9adc178460',
+            'from_email' => 'official@cangrowonline.com',
+            'from_name' => 'CangrowOnline',
         ]);
     }
 
@@ -67,4 +75,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('generalsettings');
     }
-}
+};

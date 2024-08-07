@@ -10,7 +10,7 @@
             Dashboards
         @endslot
         @slot('title')
-        {{ __("translation.add_slider") }}
+        {{ __("translation.add_service") }}
         @endslot
     @endcomponent
 
@@ -23,7 +23,7 @@
 
             </div>
             <div class="card-body">
-                <form id="geniusform" action="{{ route('admin-slider-create') }}" method="POST" enctype="multipart/form-data">
+                <form id="geniusform" action="{{ route('admin-services-create') }}" method="POST" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     @include('includes.admin.form-both')
 

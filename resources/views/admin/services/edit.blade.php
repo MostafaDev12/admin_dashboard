@@ -10,7 +10,7 @@
             Dashboards
         @endslot
         @slot('title')
-        {{ __("translation.add_slider") }}
+        {{ __("translation.edit_service") }}
         @endslot
     @endcomponent
 
@@ -23,9 +23,9 @@
 
             </div>
             <div class="card-body">
-                <form id="geniusform" action="{{ route('admin-slider-create') }}" method="POST" enctype="multipart/form-data">
-                    {{ csrf_field() }}
-                    @include('includes.admin.form-both')
+              <form id="geniusform" action="{{route('admin-services-update',$data->id)}}" method="POST" enctype="multipart/form-data">
+                {{csrf_field()}}
+                @include('includes.admin.form-both')
 
 
 
@@ -70,12 +70,12 @@
                                       
                                               <div class="mb-3">
                                                   <label for="title_ar" class="form-label">{{ __('translation.title') }}</label>
-                                                  <input type="text" class="form-control" name="title_ar" id="title_ar" placeholder="{{ __('translation.title') }}">
+                                                  <input type="text" class="form-control" name="title_ar" value="{{ $data->title_ar }}" id="title_ar" placeholder="{{ __('translation.title') }}">
                                               </div>
                                                
                                               <div class="mb-3">
                                                   <label for="details_ar" class="form-label">{{ __('translation.details') }}</label>
-                                                  <textarea class="form-control" name="details_ar"  id="details_ar" rows="3" placeholder="{{ __('translation.details') }}"></textarea>
+                                                  <textarea class="form-control" name="details_ar"  id="details_ar" rows="3" placeholder="{{ __('translation.details') }}">{{ $data->details_ar }}</textarea>
                                               </div>
                                               
                                         </div>
@@ -84,12 +84,12 @@
                                            
                                             <div class="mb-3">
                                               <label for="title_en" class="form-label">{{ __('translation.title') }}</label>
-                                              <input type="text" class="form-control" name="title_en" id="title_en" placeholder="{{ __('translation.title') }}">
+                                              <input type="text" class="form-control" name="title_en"  value="{{ $data->title_en }}"  id="title_en" placeholder="{{ __('translation.title') }}">
                                           </div>
                                            
                                           <div class="mb-3">
                                               <label for="details_en" class="form-label">{{ __('translation.details') }}</label>
-                                              <textarea class="form-control" name="details_en"  id="details_en" rows="3" placeholder="{{ __('translation.details') }}"></textarea>
+                                              <textarea class="form-control" name="details_en"  id="details_en" rows="3" placeholder="{{ __('translation.details') }}">{{ $data->details_en }}</textarea>
                                           </div>
                                           
                                         </div>
@@ -99,12 +99,12 @@
 
                                             <div class="mb-3">
                                               <label for="title_fr" class="form-label">{{ __('translation.title') }}</label>
-                                              <input type="text" class="form-control" name="title_fr" id="title_fr" placeholder="{{ __('translation.title') }}">
+                                              <input type="text" class="form-control" name="title_fr"  value="{{ $data->title_fr }}"  id="title_fr" placeholder="{{ __('translation.title') }}">
                                           </div>
                                            
                                           <div class="mb-3">
                                               <label for="details_fr" class="form-label">{{ __('translation.details') }}</label>
-                                              <textarea class="form-control" name="details_fr"  id="details_fr" rows="3" placeholder="{{ __('translation.details') }}"></textarea>
+                                              <textarea class="form-control" name="details_fr"  id="details_fr" rows="3" placeholder="{{ __('translation.details') }}">{{ $data->details_fr }}</textarea>
                                           </div>
                                         </div>
 
@@ -128,7 +128,7 @@
                                             file
                                             upload variation.</p>
                                         <div class="currrent-logo" style="text-align: center;">
-                                            <img style="width: 171px;" src="{{ asset('assets/images/noimage.png') }}"
+                                            <img style="width: 171px;" src="{{$data->photo ? $data->photo  :  asset('assets/images/noimage.png') }}"
                                                 alt="">
                                         </div>
                                         <div class="avatar-xl mx-auto">

@@ -26,8 +26,22 @@ var admin_loader = 0;
 </script>
 <script src="<?php echo e(URL::asset('build/js/pages/datatables.init.js')); ?>"></script>
 <script src="<?php echo e(URL::asset('build/js/myscript.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('build/libs/dropzone/dropzone-min.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('build/libs/filepond/filepond.min.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('build/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js')); ?>">
+</script>
+<script
+    src="<?php echo e(URL::asset('build/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js')); ?>">
+</script>
+<script
+    src="<?php echo e(URL::asset('build/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js')); ?>">
+</script>
+<script src="<?php echo e(URL::asset('build/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js')); ?>"></script>
 
+<script src="<?php echo e(URL::asset('build/js/pages/form-file-upload.init.js')); ?>"></script>
 <script src="<?php echo e(URL::asset('build/js/app.js')); ?>"></script>
+
+  
 <?php echo $__env->yieldContent('script'); ?>
 <?php echo $__env->yieldContent('script-bottom'); ?>
 <?php /**PATH C:\laragon\www\modern\resources\views/layouts/vendor-scripts.blade.php ENDPATH**/ ?>

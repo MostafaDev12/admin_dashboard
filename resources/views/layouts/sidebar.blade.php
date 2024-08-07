@@ -41,6 +41,28 @@
 
                 <li class="menu-title"><i class="ri-more-fill"></i> <span>@lang('translation.pages')</span></li>
 
+
+                @if (Auth::guard('admin')->user()->sectionCheck('slider'))
+                <li class="nav-item">
+                    <a class="nav-link  " href="{{ route('admin-slider-index') }}" aria-controls="sidebarsliders">
+                        <i class="las la-tachometer-alt"></i> <span>@lang('translation.sliders')</span>
+                    </a>
+                </li> 
+                @endif
+                @if (Auth::guard('admin')->user()->sectionCheck('partners'))
+                <li class="nav-item">
+                    <a class="nav-link  " href="{{ route('admin-partners-index') }}" aria-controls="sidebarpartners">
+                        <i class="las la-tachometer-alt"></i> <span>@lang('translation.partners')</span>
+                    </a>
+                </li> 
+                @endif
+             @if (Auth::guard('admin')->user()->sectionCheck('services'))
+                <li class="nav-item">
+                    <a class="nav-link  " href="{{ route('admin-services-index') }}" aria-controls="sidebarservices">
+                        <i class="las la-tachometer-alt"></i> <span>@lang('translation.services')</span>
+                    </a>
+                </li> 
+                @endif
                 @if (Auth::guard('admin')->user()->sectionCheck('general_settings'))
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#general" data-bs-toggle="collapse" role="button"

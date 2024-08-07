@@ -61,36 +61,7 @@ class GeneralSettingController extends Controller
         $data = Generalsetting::findOrFail(1);
 
 
-         if ($file = $request->file('first_banner'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->first_banner);
-                $input['first_banner'] = $name;
-            }
-
-         
-         if ($file = $request->file('secend_banner'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->secend_banner);
-                $input['secend_banner'] = $name;
-            }
-
-         
-         if ($file = $request->file('about_us_large_photo'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->about_us_large_photo);
-                $input['about_us_large_photo'] = $name;
-            }
-
-          
-            if ($file = $request->file('about_us_small_photo'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->about_us_small_photo);
-                $input['about_us_small_photo'] = $name;
-            }
+       
             if ($file = $request->file('logo_fr'))
             {
                 $name = time().$file->getClientOriginalName();
@@ -111,233 +82,23 @@ class GeneralSettingController extends Controller
                 $input['logo_ar'] = $name;
             }
             
-                if ($file = $request->file('feature_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->feature_icon);
-                $input['feature_icon'] = $name;
-            }
-            
-                if ($file = $request->file('best_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->best_icon);
-                $input['best_icon'] = $name;
-            }
-            
-               if ($file = $request->file('top_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->top_icon);
-                $input['top_icon'] = $name;
-            }
-            
-               if ($file = $request->file('big_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->big_icon);
-                $input['big_icon'] = $name;
-            }
-            
-               if ($file = $request->file('new_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->new_icon);
-                $input['new_icon'] = $name;
-            }
-            
-            
-               if ($file = $request->file('hot_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->hot_icon);
-                $input['hot_icon'] = $name;
-            }
-            if ($file = $request->file('contact_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->contact_icon);
-                $input['contact_icon'] = $name;
-            }
-            
-               if ($file = $request->file('trending_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->trending_icon);
-                $input['trending_icon'] = $name;
-            }
-            
-               if ($file = $request->file('discount_icon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->discount_icon);
-                $input['discount_icon'] = $name;
-            }
-            
+               
             if ($file = $request->file('favicon'))
             {
                 $name = time().$file->getClientOriginalName();
                 $data->upload($name,$file,$data->favicon);
                 $input['favicon'] = $name;
             }
-            if ($file = $request->file('loader'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->loader);
-                $input['loader'] = $name;
-            }
+           
             if ($file = $request->file('admin_loader'))
             {
                 $name = time().$file->getClientOriginalName();
                 $data->upload($name,$file,$data->admin_loader);
                 $input['admin_loader'] = $name;
             }
-            if ($file = $request->file('affilate_banner'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->affilate_banner);
-                $input['affilate_banner'] = $name;
-            }
-             if ($file = $request->file('error_banner'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->error_banner);
-                $input['error_banner'] = $name;
-            }
-            if ($file = $request->file('popup_background'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->popup_background);
-                $input['popup_background'] = $name;
-            }
-            if ($file = $request->file('invoice_logo'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->invoice_logo);
-                $input['invoice_logo'] = $name;
-            }
-            if ($file = $request->file('user_image'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->user_image);
-                $input['user_image'] = $name;
-            }
-
-            if ($file = $request->file('footer_logo'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->footer_logo);
-                $input['footer_logo'] = $name;
-            }
-            
-            
-             if ($file = $request->file('paymentsicon'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->paymentsicon);
-                $input['paymentsicon'] = $name;
-            }
-            
-
-             if ($file = $request->file('sidebar_logo'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->sidebar_logo);
-                $input['sidebar_logo'] = $name;
-            }
-            if ($file = $request->file('home_about_img1'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->home_about_img1);
-                $input['home_about_img1'] = $name;
-            }
-            if ($file = $request->file('home_about_img2'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->home_about_img2);
-                $input['home_about_img2'] = $name;
-            }
-            if ($file = $request->file('home_about_img3'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->home_about_img3);
-                $input['home_about_img3'] = $name;
-            }
-            if ($file = $request->file('home_about_img4'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->home_about_img4);
-                $input['home_about_img4'] = $name;
-            }
-            if ($file = $request->file('about_background'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->about_background);
-                $input['about_background'] = $name;
-            }
-            if ($file = $request->file('service_background'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->service_background);
-                $input['service_background'] = $name;
-            }
-            if ($file = $request->file('contact_background'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->contact_background);
-                $input['contact_background'] = $name;
-            }
-            if ($file = $request->file('about_page_background'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->about_page_background);
-                $input['about_page_background'] = $name;
-            }
            
-            if ($file = $request->file('press_image'))
-            {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->press_image);
-                $input['press_image'] = $name;
-            }
-           
-            if(!empty($request->choose_title)){
-                if(in_array(null, $request->choose_title) )
-            {
-                $input['choose_title'] = null;
-                $input['choose_title_ar'] = null;
-                $input['choose_detail'] = null;
-                $input['choose_detail_ar'] = null;
-            
-            }
-            else
-            {
-                $input['choose_title'] = implode(',', str_replace(',',' ',$request->choose_title));
-                $input['choose_title_ar'] = implode(',', str_replace(',',' ',$request->choose_title_ar));
-                $input['choose_detail'] = implode(',', str_replace(',',' ',$request->choose_detail));
-                $input['choose_detail_ar'] = implode(',', str_replace(',',' ',$request->choose_detail_ar));
-            
-            }
-            }
-            
-            if(!empty($request->percent_title)){
-                if(in_array(null, $request->percent_title) )
-            {
-                $input['percent_title'] = null;
-                $input['percent_title_ar'] = null;
              
             
-            
-            }
-            else
-            {
-                $input['percent_title'] = implode(',', str_replace(',',' ',$request->percent_title));
-                $input['percent_title_ar'] = implode(',', str_replace(',',' ',$request->percent_title_ar));
-              
-             
-            
-            }
-            }
             if(!empty($request->contact_emails)){
                 if(in_array(null, $request->contact_emails) )
             {
@@ -357,7 +118,44 @@ class GeneralSettingController extends Controller
             }
             
             
-       $input['is_elections']  =  $request->is_elections == 1 ? 1 : 0 ;
+            if(!empty($request->emails)){
+                if(in_array(null, $request->emails) )
+            {
+                $input['emails'] = null;
+         
+            
+            
+            }
+            else
+            {
+                $input['emails'] = implode(',', str_replace(',',' ',$request->emails));
+           
+              
+             
+            
+            }
+            }
+            
+            if(!empty($request->phones)){
+                if(in_array(null, $request->phones) )
+            {
+                $input['phones'] = null;
+         
+            
+            
+            }
+            else
+            {
+                $input['phones'] = implode(',', str_replace(',',' ',$request->phones));
+           
+              
+             
+            
+            }
+            }
+            
+            
+       $input['is_capcha']  =  $request->is_capcha == 1 ? 1 : 0 ;
         $data->update($input);
         //--- Logic Section Ends
 

@@ -1,37 +1,36 @@
-@extends('layouts.master')
-@section('title')
-    @lang('translation.analytics')
-@endsection
-@section('css')
+<?php $__env->startSection('title'); ?>
+    <?php echo app('translator')->get('translation.analytics'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('css'); ?>
 
   
-@endsection
-@section('content')
-    @component('components.breadcrumb')
-        @slot('li_1')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+    <?php $__env->startComponent('components.breadcrumb'); ?>
+        <?php $__env->slot('li_1'); ?>
             Dashboards
-        @endslot
-        @slot('title')
+        <?php $__env->endSlot(); ?>
+        <?php $__env->slot('title'); ?>
             staff
-        @endslot
-    @endcomponent
-    <input type="hidden" id="headerdata" value="{{ __('طاقم العمل') }}">
+        <?php $__env->endSlot(); ?>
+    <?php echo $__env->renderComponent(); ?>
+    <input type="hidden" id="headerdata" value="<?php echo e(__('طاقم العمل')); ?>">
 
     <div class="col-lg-12"  >
             <div class="card">
                 <div class="card-header">
-                    @include('includes.admin.form-success')
+                    <?php echo $__env->make('includes.admin.form-success', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                     <div class="btn-area"></div>
                 </div>
                 <div class="card-body">
                     <table id="geniustable" class="table nowrap dt-responsive align-middle table-hover table-bordered" style="width:100%">
                         <thead>
                             <tr>
-                                <th>{{ __('الاسم') }}</th>
-                                <th>{{ __('الايميل') }}</th>
-                                <th>{{ __('رقم الهاتف') }}</th>
-                                <th>{{ __('الصلاحيه') }}</th>
-                                <th>{{ __('خيارات') }}</th>
+                                <th><?php echo e(__('الاسم')); ?></th>
+                                <th><?php echo e(__('الايميل')); ?></th>
+                                <th><?php echo e(__('رقم الهاتف')); ?></th>
+                                <th><?php echo e(__('الصلاحيه')); ?></th>
+                                <th><?php echo e(__('خيارات')); ?></th>
                             </tr>
                         </thead>
 
@@ -39,7 +38,7 @@
                 </div>
             </div>
         </div>
-{{-- ADD / EDIT MODAL --}}
+
 
 
     <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
@@ -56,17 +55,17 @@
         </div>
     </div>
 
-{{-- ADD / EDIT MODAL ENDS --}}
 
 
-{{-- DELETE MODAL --}}
+
+
 
 <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="modal1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
 
 	<div class="modal-header d-block text-center">
-		<h4 class="modal-title d-inline-block">{{ __('Confirm Delete') }}</h4>
+		<h4 class="modal-title d-inline-block"><?php echo e(__('Confirm Delete')); ?></h4>
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
@@ -74,29 +73,29 @@
 
       <!-- Modal body -->
       <div class="modal-body">
-            <p class="text-center">{{ __('You are about to delete this Staff.') }}</p>
-            <p class="text-center">{{ __('Do you want to proceed?') }}</p>
+            <p class="text-center"><?php echo e(__('You are about to delete this Staff.')); ?></p>
+            <p class="text-center"><?php echo e(__('Do you want to proceed?')); ?></p>
       </div>
 
       <!-- Modal footer -->
       <div class="modal-footer justify-content-center">
-            <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('Cancel') }}</button>
-            <a class="btn btn-danger btn-ok">{{ __('Delete') }}</a>
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo e(__('Cancel')); ?></button>
+            <a class="btn btn-danger btn-ok"><?php echo e(__('Delete')); ?></a>
       </div>
 
     </div>
   </div>
 </div>
 
-{{-- DELETE MODAL ENDS --}}
-
-@endsection
 
 
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
 
-{{-- DATA TABLE --}}
+
+<?php $__env->startSection('scripts'); ?>
+
+
 
 
     <script type="text/javascript">
@@ -105,7 +104,7 @@
 			   ordering: false,
                processing: true,
                serverSide: true,
-               ajax: "{{ route('admin-staff-datatables') }}",
+               ajax: "<?php echo e(route('admin-staff-datatables')); ?>",
                columns: [
                         { data: 'name', name: 'name' },
                         { data: 'email', name: 'email' },
@@ -115,20 +114,22 @@
 
                      ],
                language : {
-                	processing: '<img src="{{asset('assets/images/'.$gs->admin_loader)}}">'
+                	processing: '<img src="<?php echo e(asset('assets/images/'.$gs->admin_loader)); ?>">'
                 }
             });
 
       	$(function() {
         $(".btn-area").append('<div class="col-sm-4 text-right">'+
-        	'<a class="add-btn  btn btn-sm btn-secondary" data-href="{{route('admin-staff-create')}}" id="add-data" data-bs-toggle="modal" data-bs-target="#modal1">'+
-          '<i class="fas fa-plus"></i> {{ __('اضافه طافم العمل') }}'+
+        	'<a class="add-btn  btn btn-sm btn-secondary" data-href="<?php echo e(route('admin-staff-create')); ?>" id="add-data" data-bs-toggle="modal" data-bs-target="#modal1">'+
+          '<i class="fas fa-plus"></i> <?php echo e(__('اضافه طافم العمل')); ?>'+
           '</a>'+
           '</div>');
       });
 
     </script>
 
-{{-- DATA TABLE --}}
 
-@endsection
+
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\modern\resources\views/admin/staff/index.blade.php ENDPATH**/ ?>

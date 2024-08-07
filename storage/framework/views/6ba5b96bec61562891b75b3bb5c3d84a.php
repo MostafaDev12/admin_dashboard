@@ -1,0 +1,1 @@
+<?php /**PATH C:\laragon\www\modern\resources\views/front/index.blade.php ENDPATH**/ ?>

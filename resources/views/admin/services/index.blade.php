@@ -12,11 +12,11 @@
             Dashboards
         @endslot
         @slot('title')
-        {{ __('translation.sliders') }}
+        {{ __('translation.services') }}
         @endslot
     @endcomponent
  
-          <input type="hidden" id="headerdata" value="{{ __('translation.sliders') }}">
+          <input type="hidden" id="headerdata" value="{{ __('translation.services') }}">
                          <div class="col-lg-12"  >
                             <div class="card">
                                 <div class="card-header">
@@ -55,7 +55,7 @@
 
       <!-- Modal body -->
       <div class="modal-body">
-            <p class="text-center">{{ __('You are about to delete this slider.') }}</p>
+            <p class="text-center">{{ __('You are about to delete this service.') }}</p>
             <p class="text-center">{{ __('Do you want to proceed?') }}</p>
       </div>
 
@@ -84,7 +84,7 @@
          ordering: false,
                processing: true,
                serverSide: true,
-               ajax: '{{ route('admin-slider-datatables') }}',
+               ajax: '{{ route('admin-services-datatables') }}',
                columns: [
                         { data: 'photo', name: 'photo' },
                          
@@ -98,8 +98,8 @@
 
         $(function() {
         $(".btn-area").append('<div class="col-sm-4 table-contents">'+
-          '<a class="add-btn  btn btn-sm btn-secondary" href="{{route('admin-slider-create')}}">'+
-          '<i class="fas fa-plus"></i> {{ __("translation.add_slider") }}'+
+          '<a class="add-btn  btn btn-sm btn-secondary" href="{{route('admin-services-create')}}">'+
+          '<i class="fas fa-plus"></i> {{ __("translation.add_service") }}'+
           '</a>'+
           '</div>');
       });

@@ -6,7 +6,10 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\GeneralSettingController;
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +78,46 @@ Route::prefix('admin')->group(function() {
     Route::post('/staff/update/{id}', [StaffController::class, 'update'])->name('admin-staff-update');
     Route::get('/staff/show/{id}', [StaffController::class, 'show'])->name('admin-staff-show');
     Route::get('/staff/delete/{id}',  [StaffController::class, 'destroy'])->name('admin-staff-delete');
+  });
+
+
+
+  Route::group(['middleware' => 'permissions:slider'], function () {
+
+    Route::get('/slider/datatables',  [SliderController::class, 'datatables'])->name('admin-slider-datatables');
+    Route::get('/slider',  [SliderController::class, 'index'])->name('admin-slider-index');
+    Route::get('/slider/create',   [SliderController::class, 'create'])->name('admin-slider-create');
+    Route::post('/slider/create',  [SliderController::class, 'store'])->name('admin-slider-store');
+    Route::get('/slider/edit/{id}',  [SliderController::class, 'edit'])->name('admin-slider-edit');
+    Route::post('/slider/update/{id}', [SliderController::class, 'update'])->name('admin-slider-update');
+     
+    Route::get('/slider/delete/{id}',  [SliderController::class, 'destroy'])->name('admin-slider-delete');
+  });
+
+
+  Route::group(['middleware' => 'permissions:partners'], function () {
+
+    Route::get('/partners/datatables',  [PartnerController::class, 'datatables'])->name('admin-partners-datatables');
+    Route::get('/partners',  [PartnerController::class, 'index'])->name('admin-partners-index');
+    Route::get('/partners/create',   [PartnerController::class, 'create'])->name('admin-partners-create');
+    Route::post('/partners/create',  [PartnerController::class, 'store'])->name('admin-partners-store');
+    Route::get('/partners/edit/{id}',  [PartnerController::class, 'edit'])->name('admin-partners-edit');
+    Route::post('/partners/update/{id}', [PartnerController::class, 'update'])->name('admin-partners-update');
+     
+    Route::get('/partners/delete/{id}',  [PartnerController::class, 'destroy'])->name('admin-partners-delete');
+  });
+
+
+  Route::group(['middleware' => 'permissions:services'], function () {
+
+    Route::get('/services/datatables',  [ServiceController::class, 'datatables'])->name('admin-services-datatables');
+    Route::get('/services',  [ServiceController::class, 'index'])->name('admin-services-index');
+    Route::get('/services/create',   [ServiceController::class, 'create'])->name('admin-services-create');
+    Route::post('/services/create',  [ServiceController::class, 'store'])->name('admin-services-store');
+    Route::get('/services/edit/{id}',  [ServiceController::class, 'edit'])->name('admin-services-edit');
+    Route::post('/services/update/{id}', [ServiceController::class, 'update'])->name('admin-services-update');
+     
+    Route::get('/services/delete/{id}',  [ServiceController::class, 'destroy'])->name('admin-services-delete');
   });
 
 
