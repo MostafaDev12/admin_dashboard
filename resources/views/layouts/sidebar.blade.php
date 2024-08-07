@@ -43,25 +43,43 @@
 
 
                 @if (Auth::guard('admin')->user()->sectionCheck('slider'))
-                <li class="nav-item">
-                    <a class="nav-link  " href="{{ route('admin-slider-index') }}" aria-controls="sidebarsliders">
-                        <i class="las la-tachometer-alt"></i> <span>@lang('translation.sliders')</span>
-                    </a>
-                </li> 
+                    <li class="nav-item">
+                        <a class="nav-link  " href="{{ route('admin-slider-index') }}" aria-controls="sidebarsliders">
+                            <i class="las la-tachometer-alt"></i> <span>@lang('translation.sliders')</span>
+                        </a>
+                    </li>
                 @endif
+                @if (Auth::guard('admin')->user()->sectionCheck('page_settings'))
+                    <li class="nav-item">
+                        <a class="nav-link  " href="{{ route('admin-ps-about_us') }}" aria-controls="sidebarabout_us">
+                            <i class="las la-tachometer-alt"></i> <span>@lang('translation.about_us')</span>
+                        </a>
+                    </li>
+                @endif
+
                 @if (Auth::guard('admin')->user()->sectionCheck('partners'))
-                <li class="nav-item">
-                    <a class="nav-link  " href="{{ route('admin-partners-index') }}" aria-controls="sidebarpartners">
-                        <i class="las la-tachometer-alt"></i> <span>@lang('translation.partners')</span>
-                    </a>
-                </li> 
+                    <li class="nav-item">
+                        <a class="nav-link  " href="{{ route('admin-partners-index') }}"
+                            aria-controls="sidebarpartners">
+                            <i class="las la-tachometer-alt"></i> <span>@lang('translation.partners')</span>
+                        </a>
+                    </li>
                 @endif
-             @if (Auth::guard('admin')->user()->sectionCheck('services'))
-                <li class="nav-item">
-                    <a class="nav-link  " href="{{ route('admin-services-index') }}" aria-controls="sidebarservices">
-                        <i class="las la-tachometer-alt"></i> <span>@lang('translation.services')</span>
-                    </a>
-                </li> 
+
+                @if (Auth::guard('admin')->user()->sectionCheck('services'))
+                    <li class="nav-item">
+                        <a class="nav-link  " href="{{ route('admin-services-index') }}"
+                            aria-controls="sidebarservices">
+                            <i class="las la-tachometer-alt"></i> <span>@lang('translation.services')</span>
+                        </a>
+                    </li>
+                @endif
+                @if (Auth::guard('admin')->user()->sectionCheck('models'))
+                    <li class="nav-item">
+                        <a class="nav-link  " href="{{ route('admin-models-index') }}" aria-controls="sidebarmodels">
+                            <i class="las la-tachometer-alt"></i> <span>@lang('translation.models')</span>
+                        </a>
+                    </li>
                 @endif
                 @if (Auth::guard('admin')->user()->sectionCheck('general_settings'))
                     <li class="nav-item">
@@ -73,7 +91,8 @@
                             <ul class="nav nav-sm flex-column">
 
                                 <li class="nav-item">
-                                    <a href="{{ route('admin-gs-logo') }}" class="nav-link" data-key="t-Logo"> @lang('translation.logo')
+                                    <a href="{{ route('admin-gs-logo') }}" class="nav-link" data-key="t-Logo">
+                                        @lang('translation.logo')
                                     </a>
                                 </li>
 
@@ -84,14 +103,14 @@
                                 @if (Auth::guard('admin')->user()->sectionCheck('super'))
                                     <li class="nav-item">
                                         <a href="{{ route('admin-role-index') }}" class="nav-link"
-                                            data-key="t-Manage_Roles">    @lang('translation.role_mangment') </a>
+                                            data-key="t-Manage_Roles"> @lang('translation.role_mangment') </a>
                                     </li>
                                 @endif
 
                                 @if (Auth::guard('admin')->user()->sectionCheck('manage_staffs'))
                                     <li class="nav-item">
                                         <a href="{{ route('admin-staff-index') }}" class="nav-link"
-                                            data-key="t-Manage_Stauff">   @lang('translation.staff_mangment')   </a>
+                                            data-key="t-Manage_Stauff"> @lang('translation.staff_mangment') </a>
                                     </li>
                                 @endif
                             </ul>
@@ -101,7 +120,7 @@
                 @if (Auth::guard('admin')->user()->sectionCheck('super'))
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('admin-cache-clear') }}">
-                            <i class="las la-flask"></i> <span data-key="t-Clear_Cache">    @lang('translation.cache_clear') </span>
+                            <i class="las la-flask"></i> <span data-key="t-Clear_Cache"> @lang('translation.cache_clear') </span>
                         </a>
                     </li>
                 @endif

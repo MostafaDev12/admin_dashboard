@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\ModelController;
 use App\Http\Controllers\Admin\GeneralSettingController;
+use App\Http\Controllers\Admin\PageSettingController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -95,6 +97,19 @@ Route::prefix('admin')->group(function() {
   });
 
 
+  Route::group(['middleware' => 'permissions:models'], function () {
+
+    Route::get('/models/datatables',  [ModelController::class, 'datatables'])->name('admin-models-datatables');
+    Route::get('/models',  [ModelController::class, 'index'])->name('admin-models-index');
+    Route::get('/models/create',   [ModelController::class, 'create'])->name('admin-models-create');
+    Route::post('/models/create',  [ModelController::class, 'store'])->name('admin-models-store');
+    Route::get('/models/edit/{id}',  [ModelController::class, 'edit'])->name('admin-models-edit');
+    Route::post('/models/update/{id}', [ModelController::class, 'update'])->name('admin-models-update');
+     
+    Route::get('/models/delete/{id}',  [ModelController::class, 'destroy'])->name('admin-models-delete');
+  });
+
+
   Route::group(['middleware' => 'permissions:partners'], function () {
 
     Route::get('/partners/datatables',  [PartnerController::class, 'datatables'])->name('admin-partners-datatables');
@@ -130,6 +145,18 @@ Route::prefix('admin')->group(function() {
 
     Route::get('/general-settings/admin/loader/{status}', [GeneralSettingController::class, 'isadminloader'])->name('admin-gs-is-admin-loader');
   });
+
+
+  
+  Route::group(['middleware' => 'permissions:page_settings'], function () {
+
+
+    Route::get('/page-settings/about_us', [PageSettingController::class, 'aboutUs'])->name('admin-ps-about_us');
+    Route::post('/page-settings/update/all', [PageSettingController::class, 'pageupdate'])->name('admin-ps-update');
+ 
+  });
+
+
 
 
 

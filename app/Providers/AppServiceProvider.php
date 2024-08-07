@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Generalsetting;
+use App\Models\Pagesetting;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Blade;
@@ -21,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
 
         view()->composer('*',function($settings){
             $settings->with('gs', Generalsetting::first());
+            $settings->with('ps', Pagesetting::first());
            
         });
 
