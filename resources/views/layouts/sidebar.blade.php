@@ -55,6 +55,11 @@
                             <i class="las la-tachometer-alt"></i> <span>@lang('translation.about_us')</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link  " href="{{ route('admin-ps-portfolio') }}" aria-controls="sidebarportfolio">
+                            <i class="las la-tachometer-alt"></i> <span>@lang('translation.portfolio')</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if (Auth::guard('admin')->user()->sectionCheck('partners'))

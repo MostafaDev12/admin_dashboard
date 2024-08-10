@@ -229,6 +229,37 @@ return [
     "links" => "Links",
     "range-area" => "Range Area",
     "funnel" => "Funnel",
+
+        
+    "admin" => "admin",
+    "sliders" => "sliders",
+    "about_us" => "about us",
+    "portfolio" => "portfolio",
+    "arabic" => "arabic",
+    "english" => "english",
+    "france" => "france",
+    "title" => "title",
+    "details" => "details",
+    "photo" => "photo",
+    "save" => "save",
+    "actions" => "actions",
+    "add_slider" => "add slider",
+    "edit_slider" => "edit slider",
+    "partners" => "partners",
+    "add_partners" => "add partner",
+    "edit_partners" => "edit partner",
+    "services" => "services",
+    "add_service" => "add service",
+    "edit_service" => "edit service",
+    "models" => "models",
+    "add_model" => "add model",
+    "edit_models" => "edit model",
+       "logo" => "logo",
+       "content" => "content",
+       "role_mangment" => "role mangment",
+       "staff_mangment" => "staff mangment",
+       "cache_clear" => "cache clear",
+    
 ];
 ?>
 

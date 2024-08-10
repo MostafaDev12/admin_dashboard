@@ -69,7 +69,13 @@ class PageSettingController extends Controller
                 $input['about_photo'] = $name;
             }
               
-           
+            if ($file = $request->file('portfolio_photo'))
+            {
+                $name = time().$file->getClientOriginalName();
+                $data->upload($name,$file,$data->portfolio_photo);
+                $input['portfolio_photo'] = $name;
+            }
+              
         $data->update($input);
         //--- Logic Section Ends
 
@@ -93,6 +99,12 @@ class PageSettingController extends Controller
     public function aboutUs()
     {
         return view('admin.pagesetting.about_us');
+    }
+
+ 
+    public function portfolio()
+    {
+        return view('admin.pagesetting.portfolio');
     }
 
  

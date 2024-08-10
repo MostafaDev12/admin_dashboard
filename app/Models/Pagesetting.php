@@ -15,6 +15,14 @@ class Pagesetting extends Model
      'about_details_fr', 
      'about_details_ar',
      'about_photo',
+     
+     'portfolio_title_en', 
+     'portfolio_title_fr', 
+     'portfolio_title_ar',
+     'portfolio_details_en', 
+     'portfolio_details_fr', 
+     'portfolio_details_ar',
+     'portfolio_photo',
    
 ];
 
@@ -25,6 +33,12 @@ class Pagesetting extends Model
     public function getAboutPhotoAttribute()
     {
         return !empty($this->attributes['about_photo']) ? url('/') . '/assets/images/' . $this->attributes['about_photo'] : '';
+    }
+
+
+    public function getPortfolioPhotoAttribute()
+    {
+        return !empty($this->attributes['portfolio_photo']) ? url('/') . '/assets/images/' . $this->attributes['portfolio_photo'] : '';
     }
 
 

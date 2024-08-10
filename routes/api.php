@@ -26,6 +26,9 @@ Route::get('/services',  [FrontController::class, 'services']);
 Route::get('/single-service/{id}',  [FrontController::class, 'singleService']);
 Route::get('/settings',  [FrontController::class, 'settings']);
 Route::get('/about-us',  [FrontController::class, 'about_us']);
+Route::get('/portfolio',  [FrontController::class, 'portfolio']);
 Route::get('/visitors',  [FrontController::class, 'visitors']);
 Route::get('/models',  [FrontController::class, 'models']);
 Route::get('/single-model/{id}',  [FrontController::class, 'Singlemodel']);
+
+Route::post('/contact-submit',  [FrontController::class, 'contactSubmit']);
