@@ -144,6 +144,12 @@ Route::prefix('admin')->group(function() {
     Route::get('/general-settings/Adminloader', [GeneralSettingController::class, 'load2'])->name('admin-gs-load2');
 
     Route::get('/general-settings/admin/loader/{status}', [GeneralSettingController::class, 'isadminloader'])->name('admin-gs-is-admin-loader');
+  
+  
+    Route::get('/general-settings/home_video', [GeneralSettingController::class, 'home_video'])->name('admin-gs-home_video');
+    
+  Route::get('/general-settings/contact_messages/datatables',  [GeneralSettingController::class, 'contact_messages_datatables'])->name('admin-contact_messages-datatables');
+  Route::get('/general-settings/contact_messages', [GeneralSettingController::class, 'contact_messages'])->name('admin-gs-contact_messages');
   });
 
 

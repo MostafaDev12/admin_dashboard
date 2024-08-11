@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Controller;
 use App\Models\Generalsetting;
 use App\Models\Contact;
+use Validator;
 use App\Classes\GeniusMailer;
 
 class FrontController extends Controller
@@ -139,7 +140,21 @@ class FrontController extends Controller
     public function settings()
     {
          
-        $data = Generalsetting::first();
+        $dat = Generalsetting::first();
+      
+      
+        $lang = request()->header('Accept-Language');
+           
+        $data['logo'] = $dat->{'logo_'.$lang} ; 
+        $data['title'] =  $dat->{'title_'.$lang} ; 
+        $data['footer'] =  $dat->{'footer_'.$lang} ; 
+        $data['addresses'] =  json_decode($dat->{'addresses_'.$lang}) ; 
+        
+        $data['favicon'] = $dat->favicon  ; 
+        $data['phones'] =  explode(',',$dat->phones)  ; 
+        $data['emails'] =   explode(',',$dat->emails) ; 
+        $data['contact_emails'] =  explode(',',$dat->contact_emails)   ; 
+        $data['map'] = $dat->map  ;
       
         return response()->json([
             'status' => true,
@@ -370,6 +385,20 @@ class FrontController extends Controller
            $gs = Generalsetting::findOrFail(1);
             $ps = Pagesetting::find(1);
    
+   
+   
+    $rules = [
+               'name'      => 'required',
+               'phone'      => 'required',
+               'email'      => 'email',
+                ];
+
+        $validator = Validator::make($request->all(), $rules);
+        
+        if ($validator->fails()) {
+          return response()->json(array('errors' => $validator->getMessageBag()->toArray()));
+        }
+   
         //    if($gs->is_capcha == 1)
         //    {
    
@@ -432,7 +461,7 @@ class FrontController extends Controller
            
            } 
     
-           Contact::create([
+        $data =   Contact::create([
                'name' => $name ,
                'phone' => $phone ,
                'email' => $from ,
@@ -444,6 +473,7 @@ class FrontController extends Controller
            return response()->json([
             'status' => true,
               'message' => 'success',
+              'data' =>  $data,
             
         ], 200);
        }

@@ -105,6 +105,10 @@
                                     <a href="{{ route('admin-gs-contents') }}" class="nav-link"
                                         data-key="t-Website_Contents"> @lang('translation.content') </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin-gs-contact_messages') }}" class="nav-link"
+                                        data-key="t-contact_messages"> @lang('translation.contact_messages') </a>
+                                </li>
                                 @if (Auth::guard('admin')->user()->sectionCheck('super'))
                                     <li class="nav-item">
                                         <a href="{{ route('admin-role-index') }}" class="nav-link"

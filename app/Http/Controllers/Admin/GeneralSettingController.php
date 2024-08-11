@@ -6,6 +6,8 @@ use Artisan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Currency;
+use App\Models\Contact;
+use DataTables;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use Validator;
@@ -95,6 +97,14 @@ class GeneralSettingController extends Controller
                 $name = time().$file->getClientOriginalName();
                 $data->upload($name,$file,$data->admin_loader);
                 $input['admin_loader'] = $name;
+            }
+           
+           
+              if ($file = $request->file('home_video'))
+            {
+                $name = time().$file->getClientOriginalName();
+                $data->uploadvideo($name,$file,$data->home_video);
+                $input['home_video'] = $name;
             }
            
              
@@ -322,12 +332,27 @@ class GeneralSettingController extends Controller
         return view('admin.generalsetting.loader');
     }
     
-     public function load2()
+     public function home_video()
     {
-        return view('admin.generalsetting.loader2');
+        return view('admin.generalsetting.home_video');
     }
   
   
+    
+     public function contact_messages()
+    {
+        return view('admin.generalsetting.contact_messages');
+    }
+  
+      public function contact_messages_datatables()
+    {
+         $datas = Contact::orderBy('id','desc')->get();
+         //--- Integrating This Collection Into Datatables
+         return Datatables::of($datas)
+                            
+                            ->rawColumns(['photo','action'])
+                            ->toJson(); //--- Returning Json Data To Client Side
+    }
     public function  nbe()
     {
         return view('admin.generalsetting.nbe_settings');

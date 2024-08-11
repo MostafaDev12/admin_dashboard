@@ -23,6 +23,7 @@ class Generalsetting extends Model
      ,'is_verification_email' 
      ,'is_smtp' 
      ,'is_capcha' 
+     ,'home_video' 
 ];
 
     public $timestamps = false;
@@ -47,6 +48,11 @@ class Generalsetting extends Model
     {
         return !empty($this->attributes['logo_fr']) ? url('/') . '/assets/images/' . $this->attributes['logo_fr'] : '';
     }
+    
+   public function getHomeVideoAttribute()
+    {
+        return !empty($this->attributes['home_video']) ? url('/') . '/assets/videos/' . $this->attributes['home_video'] : '';
+    }
 
 
     
@@ -57,6 +63,17 @@ class Generalsetting extends Model
                 {
                     if (file_exists(public_path().'/assets/images/'.$oldname)) {
                         unlink(public_path().'/assets/images/'.$oldname);
+                    }
+                }
+    }
+    
+    public function uploadvideo($name,$file,$oldname)
+    {
+                $file->move('assets/videos',$name);
+                if($oldname != null)
+                {
+                    if (file_exists(public_path().'/assets/videos/'.$oldname)) {
+                        unlink(public_path().'/assets/videos/'.$oldname);
                     }
                 }
     }
