@@ -8,7 +8,7 @@ class CmsPage extends Model
 {
     protected $guarded = ['id'];
 
-    protected $casts = ['assets' => 'array', 'seo' => 'array', 'is_visible' => 'boolean'];
+    protected $casts = ['assets' => 'array', 'seo' => 'array', 'listing' => 'array', 'is_visible' => 'boolean', 'auto_listing' => 'boolean'];
 
     public function sections()
     {

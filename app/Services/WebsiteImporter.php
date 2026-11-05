@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\File;
 
 class WebsiteImporter
 {
-    public function import(): array
+    /** @param bool $upgrade False only to inspect the pre-consolidation structure. */
+    public function import(bool $upgrade = true): array
     {
         $seed = json_decode(File::get(database_path('content/website.json')), true, 512, JSON_THROW_ON_ERROR);
 
-        return DB::transaction(function () use ($seed) {
+        return DB::transaction(function () use ($seed, $upgrade) {
+            $tombstones = app(CmsTrash::class)->tombstones();
             $defaults = json_decode(File::get(database_path('content/globals.json')), true, 512, JSON_THROW_ON_ERROR);
             $schema = [];
             foreach ($defaults as $key => $value) {
@@ -23,17 +25,34 @@ class WebsiteImporter
             }
             CmsSection::firstOrCreate(['key' => 'global-site'], ['label' => 'Website identity & contact settings', 'template' => 'website.empty', 'content' => $defaults, 'schema' => $schema, 'groups' => []]);
             foreach ($seed['pages'] as $p) {
+                if (isset($tombstones['page'][$p['key']])) {
+                    continue;
+                }
                 CmsPage::firstOrCreate(['key' => $p['key']], collect($p)->only(['type', 'slug', 'title', 'description', 'body_page'])->all() + ['assets' => ['styles' => $p['styles'], 'scripts' => $p['scripts']]]);
             }
             foreach ($seed['sections'] as $s) {
+                if (isset($tombstones['section'][$s['key']])) {
+                    continue;
+                }
                 $section = CmsSection::firstOrCreate(['key' => $s['key']], ['page_id' => $s['page_key'] ? CmsPage::where('key', $s['page_key'])->value('id') : null, 'label' => $s['label'], 'template' => $s['template'], 'position' => $s['position'], 'content' => $s['fields'], 'schema' => $s['schema'], 'groups' => $s['groups']]);
                 $map = [];
+                $skipped = [];
                 $pending = $s['items'];
-                $section->update(['groups' => $s['groups']]);
+                if (! CmsMenu::isConsolidated($section)) {
+                    $section->update(['groups' => $s['groups']]);
+                }
                 // Nested items may precede their parents in the source compiler.
                 while ($pending) {
                     $progress = false;
                     foreach ($pending as $k => $item) {
+                        // Items removed on purpose, and anything nested under them, stay removed.
+                        if (isset($tombstones['item'][$s['key'].':'.$item['import_id']]) || isset($skipped[$item['parent_import_id']])) {
+                            $skipped[$item['import_id']] = true;
+                            unset($pending[$k]);
+                            $progress = true;
+
+                            continue;
+                        }
                         if ($item['parent_import_id'] && ! isset($map[$item['parent_import_id']])) {
                             continue;
                         }
@@ -56,13 +75,23 @@ class WebsiteImporter
             $rotator = CmsSection::firstOrCreate(['key' => 'global-rotator'], ['label' => 'Home article carousel', 'template' => 'website.empty', 'content' => [], 'schema' => [], 'groups' => []]);
             $rotator->update(['groups' => [['key' => 'slides', 'label' => 'Carousel slides', 'parent_group' => null, 'schema' => $slideSchema, 'defaults' => ['image' => '', 'title' => '', 'copy' => '', 'link' => '']]]]);
             foreach ($seed['rotator'] as $i => $item) {
+                if (isset($tombstones['item']['rotator:'.$i])) {
+                    continue;
+                }
                 $item['image'] = '/website/'.$item['image'];
                 $item['link'] = '/article-details.html?article='.($i + 1);
                 CmsItem::firstOrCreate(['import_key' => 'rotator:'.$i], ['section_id' => $rotator->id, 'group_key' => 'slides', 'label' => $item['title'], 'position' => $i, 'content' => $item, 'schema' => ['image' => ['type' => 'image', 'label' => 'Image'], 'title' => ['type' => 'text', 'label' => 'Title'], 'copy' => ['type' => 'text', 'label' => 'Description'], 'link' => ['type' => 'link', 'label' => 'Destination']]]);
             }
             foreach (File::allFiles(public_path('website/assets/images')) as $file) {
                 $relative = '/website/assets/images/'.str_replace('\\', '/', $file->getRelativePathname());
+                if (! preg_match('~^(image|video)/|/pdf$~', File::mimeType($file->getPathname()) ?: '')) {
+                    continue;
+                }
                 CmsMedia::firstOrCreate(['path' => $relative], ['name' => $file->getFilename(), 'mime' => File::mimeType($file->getPathname()) ?: 'application/octet-stream', 'size' => $file->getSize(), 'is_original' => true]);
+            }
+
+            if ($upgrade) {
+                app(CmsUpgrade::class)->run();
             }
 
             return ['pages' => CmsPage::count(), 'sections' => CmsSection::count(), 'items' => CmsItem::count()];

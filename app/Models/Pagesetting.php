@@ -50,8 +50,8 @@ class Pagesetting extends Model
                 $file->move('assets/images',$name);
                 if($oldname != null)
                 {
-                    if (file_exists(public_path().'/assets/images/'.$oldname)) {
-                        unlink(public_path().'/assets/images/'.$oldname);
+                    if (file_exists(public_path().'/assets/images/'.basename($oldname))) {
+                        unlink(public_path().'/assets/images/'.basename($oldname));
                     }
                 }
     }

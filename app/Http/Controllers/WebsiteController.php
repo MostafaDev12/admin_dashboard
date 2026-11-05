@@ -6,6 +6,7 @@ use App\Http\Requests\WebsiteContactRequest;
 use App\Models\CmsPage;
 use App\Models\CmsSection;
 use App\Models\CmsSubmission;
+use App\Services\CmsMessages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,9 +28,9 @@ class WebsiteController extends Controller
             abort_unless(is_string($selector) && preg_match('/^[a-zA-Z0-9_-]{1,150}$/D', $selector), 404);
             $slug .= '?article='.$selector;
         }
-        $redirect = DB::table('cms_redirects')->where('from', $slug)->value('to');
-        if ($redirect !== null) {
-            return redirect(url($redirect), 301);
+        $redirect = DB::table('cms_redirects')->where('from', $slug)->first();
+        if ($redirect) {
+            return redirect(url($redirect->to), $redirect->status ?? 301);
         }
         $page = CmsPage::with('sections.items')->where('slug', $slug)->where('is_visible', true)->firstOrFail();
         $globals = CmsSection::with('items')->whereNull('page_id')->get()->keyBy('key');
@@ -39,15 +40,15 @@ class WebsiteController extends Controller
         return response()->view('website.page', compact('page', 'globals', 'mediaAlts'));
     }
 
-    public function contact(WebsiteContactRequest $request)
+    public function contact(WebsiteContactRequest $request, CmsMessages $messages)
     {
         $data = $request->validated();
         CmsSubmission::create(collect($data)->only(['name', 'phone', 'email'])->all() + ['details' => collect($data)->except(['name', 'phone', 'email'])->all()]);
         if ($request->expectsJson()) {
-            return response()->json(['message' => 'تم إرسال طلبك بنجاح. سنتواصل معك لتأكيد الموعد.'], 201);
+            return response()->json(['message' => $messages->get('appointment_success')], 201);
         }
 
-        return back()->with('website_success', 'تم إرسال طلبك بنجاح. سنتواصل معك لتأكيد الموعد.');
+        return back()->with('website_success', $messages->get('appointment_success'));
     }
 
     public function sitemap()

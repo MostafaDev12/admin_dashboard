@@ -15,4 +15,9 @@ class WebsiteContactRequest extends FormRequest
     {
         return ['name' => 'required|string|max:150', 'phone' => ['required', 'string', 'max:40', 'regex:/^[+0-9 ()-]{7,40}$/'], 'email' => 'nullable|email|max:190', 'age' => 'nullable|integer|min:1|max:120', 'complaint' => 'nullable|string|max:1000', 'date' => 'nullable|date|after_or_equal:today', 'details' => 'nullable|string|max:5000', 'service' => 'nullable|string|max:190', 'preferred_time' => 'nullable|string|max:100'];
     }
+
+    public function messages(): array
+    {
+        return app(\App\Services\CmsMessages::class)->validation();
+    }
 }

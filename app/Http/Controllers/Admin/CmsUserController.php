@@ -32,12 +32,15 @@ class CmsUserController extends Controller
     {
         abort_unless(auth('admin')->user()->IsSuper(), 403);
         $data = $request->validate(['name' => 'required|string|max:190', 'email' => ['required', 'email', Rule::unique('admins', 'email')->ignore($admin->id)], 'password' => 'nullable|string|min:12|max:200']);
-        if (empty($data['password'])) {
-            unset($data['password']);
-        } else {
-            $data['password'] = Hash::make($data['password']);
-        }
+        $password = $data['password'] ?? null;
+        unset($data['password']);
         $admin->update($data);
+        if (! empty($password)) {
+            $admin->changePassword($password);
+            if ($admin->is(auth('admin')->user())) {
+                $request->session()->put('admin_session_'.$admin->getAuthIdentifier(), $admin->sessionFingerprint());
+            }
+        }
 
         return back()->with('success', 'Administrator updated.');
     }

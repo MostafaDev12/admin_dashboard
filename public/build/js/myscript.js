@@ -580,8 +580,9 @@ if(admin_loader == 1)
 }
 
         $.ajax({
-         type:"GET",
+         type:"DELETE",
          url:$(this).attr('href'),
+         headers:{'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')},
          success:function(data)
          {
               $('#confirm-delete').modal('toggle');

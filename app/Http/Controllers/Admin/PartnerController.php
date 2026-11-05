@@ -6,6 +6,7 @@ use DataTables;
 use App\Models\Partner;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Support\SafeUpload;
 use Illuminate\Support\Facades\Input;
 use Validator;
 
@@ -54,7 +55,7 @@ class PartnerController extends Controller
     {
         //--- Validation Section
         $rules = [
-               'photo'      => '',
+               'photo'      => SafeUpload::IMAGE_RULE,
                 ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -66,12 +67,11 @@ class PartnerController extends Controller
 
         //--- Logic Section
         $data = new Partner();
-        $input = $request->all();
+        $input = $request->except('photo');
         
         if ($file = $request->file('photo')) 
         {              
-            $name = time().$file->getClientOriginalName();
-            $file->move('assets/images/partners/',$name);
+            $name = SafeUpload::move($file, 'assets/images/partners');
                     
         $input['photo'] = $name;
         } 
@@ -99,7 +99,7 @@ class PartnerController extends Controller
     {
         //--- Validation Section
         $rules = [
-               'photo'      => '',
+               'photo'      => SafeUpload::IMAGE_RULE,
                 ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -111,17 +111,10 @@ class PartnerController extends Controller
 
         //--- Logic Section
         $data = Partner::findOrFail($id);
-        $input = $request->all();
+        $input = $request->except('photo');
         if ($file = $request->file('photo')) 
         {              
-            $name = time().$file->getClientOriginalName();
-            $file->move('assets/images/partners/',$name);
-            if($data->photo != null)
-            {
-                if (file_exists(public_path().'/assets/images/partners/'.$data->photo)) {
-                    unlink(public_path().'/assets/images/partners/'.$data->photo);
-                }
-            }            
+            $name = SafeUpload::move($file, 'assets/images/partners');
         $input['photo'] = $name;
         } 
         $data->update($input);
@@ -134,7 +127,7 @@ class PartnerController extends Controller
 
     }
 
-    //*** GET Request Delete
+    //*** DELETE Request
     public function destroy($id)
     {
         $data = Partner::findOrFail($id);

@@ -54,7 +54,9 @@ class RoleController extends Controller
     {
         //--- Validation Section
         $rules = [
-               'photo'      => '',
+               'name'      => 'required|string|max:190',
+               'section'   => 'nullable|array',
+               'section.*' => 'string|max:100',
                 ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -66,7 +68,7 @@ class RoleController extends Controller
 
         //--- Logic Section
         $data = new Role();
-        $input = $request->all();
+        $input = $request->only('name');
         if(!empty($request->section))
         {
             $input['section'] = implode(" , ",$request->section);
@@ -99,7 +101,9 @@ class RoleController extends Controller
     {
         //--- Validation Section
         $rules = [
-               'photo'      => '',
+               'name'      => 'required|string|max:190',
+               'section'   => 'nullable|array',
+               'section.*' => 'string|max:100',
                 ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -111,7 +115,7 @@ class RoleController extends Controller
 
         //--- Logic Section
         $data = Role::findOrFail($id);
-        $input = $request->all();
+        $input = $request->only('name');
         if(!empty($request->section))
         {
             $input['section'] = implode(" , ",$request->section);
@@ -129,7 +133,7 @@ class RoleController extends Controller
 
     }
 
-    //*** GET Request Delete
+    //*** DELETE Request
     public function destroy($id)
     {
         $data = Role::findOrFail($id);

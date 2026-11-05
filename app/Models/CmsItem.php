@@ -8,7 +8,7 @@ class CmsItem extends Model
 {
     protected $guarded = ['id'];
 
-    protected $casts = ['content' => 'array', 'schema' => 'array', 'is_visible' => 'boolean'];
+    protected $casts = ['content' => 'array', 'schema' => 'array', 'overrides' => 'array', 'is_visible' => 'boolean', 'is_managed' => 'boolean'];
 
     protected static function booted(): void
     {

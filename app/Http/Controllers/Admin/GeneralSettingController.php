@@ -9,6 +9,7 @@ use App\Models\Currency;
 use App\Models\Contact;
 use DataTables;
 use App\Http\Controllers\Controller;
+use App\Support\SafeUpload;
 use Illuminate\Support\Facades\Input;
 use Validator;
 
@@ -17,18 +18,12 @@ class GeneralSettingController extends Controller
 
     protected $rules =
     [
-//    /*    'logo'              => 'mimes:jpeg,jpg,png,svg',
-//        'favicon'           => 'mimes:jpeg,jpg,png,svg',
-//        'loader'            => 'mimes:gif',
-//        'admin_loader'      => 'mimes:gif',
-//        'affilate_banner'   => 'mimes:jpeg,jpg,png,svg',
-//        'error_banner'      => 'mimes:jpeg,jpg,png,svg',
-//        'popup_background'  => 'mimes:jpeg,jpg,png,svg',
-//        'invoice_logo'      => 'mimes:jpeg,jpg,png,svg',
-//        'user_image'        => 'mimes:jpeg,jpg,png,svg',
-//        'footer_logo'        => 'mimes:jpeg,jpg,png,svg',
-//        'wallet_photo'        => 'mimes:jpeg,jpg,png,svg',
-//        'loyalty_photo'        => 'mimes:jpeg,jpg,png,svg',*/
+        'logo_fr'      => SafeUpload::IMAGE_RULE,
+        'logo_en'      => SafeUpload::IMAGE_RULE,
+        'logo_ar'      => SafeUpload::IMAGE_RULE,
+        'favicon'      => SafeUpload::ICON_RULE,
+        'admin_loader' => SafeUpload::IMAGE_RULE,
+        'home_video'   => SafeUpload::VIDEO_RULE,
     ];
 
     public function __construct()
@@ -59,51 +54,47 @@ class GeneralSettingController extends Controller
 
         //--- Logic Section
         else {
-        $input = $request->all();
+        $input = $request->except(array_keys($this->rules));
         $data = Generalsetting::findOrFail(1);
 
 
        
             if ($file = $request->file('logo_fr'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->logo_fr);
+                $name = SafeUpload::move($file, 'assets/images');
                 $input['logo_fr'] = $name;
             }
              if ($file = $request->file('logo_en'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->logo_en);
+                $name = SafeUpload::move($file, 'assets/images');
                 $input['logo_en'] = $name;
             }
             
              if ($file = $request->file('logo_ar'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->logo_ar);
+                $name = SafeUpload::move($file, 'assets/images');
                 $input['logo_ar'] = $name;
             }
             
                
             if ($file = $request->file('favicon'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->favicon);
+                $name = SafeUpload::move($file, 'assets/images');
+                SafeUpload::delete('assets/images', $data->getRawOriginal('favicon'));
                 $input['favicon'] = $name;
             }
            
             if ($file = $request->file('admin_loader'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->admin_loader);
+                $name = SafeUpload::move($file, 'assets/images');
+                SafeUpload::delete('assets/images', $data->getRawOriginal('admin_loader'));
                 $input['admin_loader'] = $name;
             }
            
            
               if ($file = $request->file('home_video'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->uploadvideo($name,$file,$data->home_video);
+                $name = SafeUpload::move($file, 'assets/videos');
                 $input['home_video'] = $name;
             }
            
@@ -330,11 +321,6 @@ class GeneralSettingController extends Controller
      public function load()
     {
         return view('admin.generalsetting.loader');
-    }
-    
-     public function home_video()
-    {
-        return view('admin.generalsetting.home_video');
     }
   
   
@@ -658,13 +644,6 @@ class GeneralSettingController extends Controller
     {
         $data = Generalsetting::findOrFail(1);
         $data->is_shop = $status;
-        $data->update();
-    }
-
-    public function isadminloader($status)
-    {
-        $data = Generalsetting::findOrFail(1);
-        $data->is_admin_loader = $status;
         $data->update();
     }
 

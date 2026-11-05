@@ -128,9 +128,12 @@
                 @endif
                 @if (Auth::guard('admin')->user()->sectionCheck('super'))
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="{{ route('admin-cache-clear') }}">
-                            <i class="las la-flask"></i> <span data-key="t-Clear_Cache"> @lang('translation.cache_clear') </span>
-                        </a>
+                        <form method="POST" action="{{ route('admin-cache-clear') }}">
+                            @csrf
+                            <button type="submit" class="nav-link menu-link btn btn-link w-100 text-start">
+                                <i class="las la-flask"></i> <span data-key="t-Clear_Cache"> @lang('translation.cache_clear') </span>
+                            </button>
+                        </form>
                     </li>
                 @endif
             </ul>

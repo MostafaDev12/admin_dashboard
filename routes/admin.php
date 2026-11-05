@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\PartnerController;
@@ -43,7 +42,7 @@ Route::prefix('admin')->group(function() {
   Route::group(['middleware' => 'permissions:super'], function () {
 
 
-    Route::get('/cache/clear', function () {
+    Route::post('/cache/clear', function () {
       Artisan::call('cache:clear');
       Artisan::call('config:clear');
       Artisan::call('route:clear');
@@ -61,7 +60,7 @@ Route::prefix('admin')->group(function() {
     Route::post('/role/create',  [RoleController::class, 'store'])->name('admin-role-store');
     Route::get('/role/edit/{id}',  [RoleController::class, 'edit'])->name('admin-role-edit');
     Route::post('/role/edit/{id}', [RoleController::class, 'update'])->name('admin-role-update');
-    Route::get('/role/delete/{id}',  [RoleController::class, 'destroy'])->name('admin-role-delete');
+    Route::delete('/role/delete/{id}',  [RoleController::class, 'destroy'])->name('admin-role-delete');
 
     // ------------ ROLE SECTION ENDS ----------------------
 
@@ -79,7 +78,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/staff/edit/{id}',  [StaffController::class, 'edit'])->name('admin-staff-edit');
     Route::post('/staff/update/{id}', [StaffController::class, 'update'])->name('admin-staff-update');
     Route::get('/staff/show/{id}', [StaffController::class, 'show'])->name('admin-staff-show');
-    Route::get('/staff/delete/{id}',  [StaffController::class, 'destroy'])->name('admin-staff-delete');
+    Route::delete('/staff/delete/{id}',  [StaffController::class, 'destroy'])->name('admin-staff-delete');
   });
 
 
@@ -93,7 +92,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/slider/edit/{id}',  [SliderController::class, 'edit'])->name('admin-slider-edit');
     Route::post('/slider/update/{id}', [SliderController::class, 'update'])->name('admin-slider-update');
      
-    Route::get('/slider/delete/{id}',  [SliderController::class, 'destroy'])->name('admin-slider-delete');
+    Route::delete('/slider/delete/{id}',  [SliderController::class, 'destroy'])->name('admin-slider-delete');
   });
 
 
@@ -106,7 +105,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/models/edit/{id}',  [ModelController::class, 'edit'])->name('admin-models-edit');
     Route::post('/models/update/{id}', [ModelController::class, 'update'])->name('admin-models-update');
      
-    Route::get('/models/delete/{id}',  [ModelController::class, 'destroy'])->name('admin-models-delete');
+    Route::delete('/models/delete/{id}',  [ModelController::class, 'destroy'])->name('admin-models-delete');
   });
 
 
@@ -119,7 +118,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/partners/edit/{id}',  [PartnerController::class, 'edit'])->name('admin-partners-edit');
     Route::post('/partners/update/{id}', [PartnerController::class, 'update'])->name('admin-partners-update');
      
-    Route::get('/partners/delete/{id}',  [PartnerController::class, 'destroy'])->name('admin-partners-delete');
+    Route::delete('/partners/delete/{id}',  [PartnerController::class, 'destroy'])->name('admin-partners-delete');
   });
 
 
@@ -132,7 +131,7 @@ Route::prefix('admin')->group(function() {
     Route::get('/services/edit/{id}',  [ServiceController::class, 'edit'])->name('admin-services-edit');
     Route::post('/services/update/{id}', [ServiceController::class, 'update'])->name('admin-services-update');
      
-    Route::get('/services/delete/{id}',  [ServiceController::class, 'destroy'])->name('admin-services-delete');
+    Route::delete('/services/delete/{id}',  [ServiceController::class, 'destroy'])->name('admin-services-delete');
   });
 
 
@@ -141,12 +140,6 @@ Route::prefix('admin')->group(function() {
     Route::get('/general-settings/logo', [GeneralSettingController::class, 'logo'])->name('admin-gs-logo');
     Route::get('/general-settings/contents', [GeneralSettingController::class, 'contents'])->name('admin-gs-contents');
     Route::post('/general-settings/update/all', [GeneralSettingController::class, 'generalupdate'])->name('admin-gs-update');
-    Route::get('/general-settings/Adminloader', [GeneralSettingController::class, 'load2'])->name('admin-gs-load2');
-
-    Route::get('/general-settings/admin/loader/{status}', [GeneralSettingController::class, 'isadminloader'])->name('admin-gs-is-admin-loader');
-  
-  
-    Route::get('/general-settings/home_video', [GeneralSettingController::class, 'home_video'])->name('admin-gs-home_video');
     
   Route::get('/general-settings/contact_messages/datatables',  [GeneralSettingController::class, 'contact_messages_datatables'])->name('admin-contact_messages-datatables');
   Route::get('/general-settings/contact_messages', [GeneralSettingController::class, 'contact_messages'])->name('admin-gs-contact_messages');
@@ -169,18 +162,5 @@ Route::prefix('admin')->group(function() {
 
 });
  
-
-//------------ ADMIN LOGIN SECTION ------------
-
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('admin.login');
-Route::post('/login', [LoginController::class, 'login'])->name('admin.login.submit');
-Route::get('/forgot', [LoginController::class, 'showForgotForm'])->name('admin.forgot');
-Route::post('/forgot', [LoginController::class, 'forgot'])->name('admin.forgot.submit');
-Route::get('/logout', [LoginController::class, 'logout'])->name('admin.logout');
-
-
-//Update User Details
-Route::post('/update-profile/{id}', [DashboardController::class, 'updateProfile'])->name('updateProfile');
-Route::post('/update-password/{id}', [DashboardController::class, 'updatePassword'])->name('updatePassword');
 
 });

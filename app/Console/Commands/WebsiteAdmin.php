@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Admin;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Hash;
 
 class WebsiteAdmin extends Command
 {
@@ -28,9 +27,8 @@ class WebsiteAdmin extends Command
         }
         $admin = Admin::firstOrNew(['email' => $email]);
         $admin->name = $this->option('name');
-        $admin->password = Hash::make($password);
         $admin->role_id = 0;
-        $admin->save();
+        $admin->changePassword($password);
         $this->info('Administrator saved. Sign in at /admin/login.');
 
         return self::SUCCESS;

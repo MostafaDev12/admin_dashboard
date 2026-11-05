@@ -84,8 +84,8 @@ class DashboardController extends Controller
 
     public function passwordreset()
     {
-        $data = Auth::guard('admin')->user();
-        return view('admin.password',compact('data'));
+        // The profile screen holds the password form; this view never existed.
+        return redirect()->route('admin.profile');
     }
 
     public function changepass(Request $request)
@@ -99,7 +99,9 @@ class DashboardController extends Controller
         if (!Hash::check($data['cpass'], $admin->password)) {
             return response()->json(['errors' => ['cpass' => ['Current password does not match.']]], 422);
         }
-        $admin->update(['password' => Hash::make($data['newpass'])]);
+        $admin->changePassword($data['newpass']);
+        // Keep this session signed in; every other session for the account is ended.
+        $request->session()->put('admin_session_'.$admin->getAuthIdentifier(), $admin->sessionFingerprint());
         $msg = 'Successfully change your passwprd';
         return response()->json($msg);
     }

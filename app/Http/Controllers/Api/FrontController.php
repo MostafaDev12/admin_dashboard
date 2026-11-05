@@ -388,9 +388,9 @@ class FrontController extends Controller
    
    
     $rules = [
-               'name'      => 'required',
-               'phone'      => 'required',
-               'email'      => 'email',
+               'name'      => ['required', 'string', 'max:150', 'not_regex:/[\r\n]/'],
+               'phone'     => ['required', 'string', 'max:40', 'not_regex:/[\r\n]/'],
+               'email'     => 'nullable|email|max:190',
                 ];
 
         $validator = Validator::make($request->all(), $rules);

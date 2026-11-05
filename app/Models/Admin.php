@@ -24,6 +24,20 @@ class Admin extends  Authenticatable
     	return $this->belongsTo('App\Models\Role');
     }
 
+    /** Identifies the current password without exposing it to the session store. */
+    public function sessionFingerprint(): string
+    {
+        return hash_hmac('sha256', (string) $this->getAuthPassword(), (string) config('app.key'));
+    }
+
+    /** Changes the password and invalidates remember-me cookies and other sessions. */
+    public function changePassword(string $plainPassword): void
+    {
+        $this->forceFill(['password' => \Illuminate\Support\Facades\Hash::make($plainPassword)]);
+        $this->setRememberToken(\Illuminate\Support\Str::random(60));
+        $this->save();
+    }
+
     public function IsSuper(){
         if ($this->id == 1 || $this->role_id == 0) {
            return true;

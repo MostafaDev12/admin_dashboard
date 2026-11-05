@@ -6,6 +6,7 @@ use DataTables;
 use App\Models\Slider;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Support\SafeUpload;
 use Illuminate\Support\Facades\Input;
 use Validator;
 
@@ -54,7 +55,7 @@ class SliderController extends Controller
     {
         //--- Validation Section
         $rules = [
-               'photo'      => '',
+               'photo'      => SafeUpload::IMAGE_RULE,
                 ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -66,12 +67,11 @@ class SliderController extends Controller
 
         //--- Logic Section
         $data = new Slider();
-        $input = $request->all();
+        $input = $request->except('photo');
         
         if ($file = $request->file('photo')) 
         {              
-            $name = time().$file->getClientOriginalName();
-            $file->move('assets/images/slider/',$name);
+            $name = SafeUpload::move($file, 'assets/images/slider');
                     
         $input['photo'] = $name;
         } 
@@ -99,7 +99,7 @@ class SliderController extends Controller
     {
         //--- Validation Section
         $rules = [
-               'photo'      => '',
+               'photo'      => SafeUpload::IMAGE_RULE,
                 ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -111,17 +111,10 @@ class SliderController extends Controller
 
         //--- Logic Section
         $data = Slider::findOrFail($id);
-        $input = $request->all();
+        $input = $request->except('photo');
         if ($file = $request->file('photo')) 
         {              
-            $name = time().$file->getClientOriginalName();
-            $file->move('assets/images/slider/',$name);
-            if($data->photo != null)
-            {
-                if (file_exists(public_path().'/assets/images/slider/'.$data->photo)) {
-                    unlink(public_path().'/assets/images/slider/'.$data->photo);
-                }
-            }            
+            $name = SafeUpload::move($file, 'assets/images/slider');
         $input['photo'] = $name;
         } 
         $data->update($input);
@@ -134,7 +127,7 @@ class SliderController extends Controller
 
     }
 
-    //*** GET Request Delete
+    //*** DELETE Request
     public function destroy($id)
     {
         $data = Slider::findOrFail($id);

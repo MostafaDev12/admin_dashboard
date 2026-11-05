@@ -2,7 +2,7 @@
 
 Source: `C:/laragon/www/dr.mohamed-baz`. Destination: `C:/laragon/www/elbaz_laravel`.
 
-Every row is imported as structured fields and relational collection items. Templates contain the original markup; the database supplies the content.
+Every row is imported as structured fields and relational collection items. Templates contain the original markup; the database supplies the content. `website:upgrade` replaces the header's six fixed navigation groups with one menu (Main navigation and its dropdown items).
 
 | Page | Public URL | Sections |
 |---|---|---|

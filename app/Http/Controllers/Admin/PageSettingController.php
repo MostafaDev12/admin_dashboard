@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Currency;
 use App\Http\Controllers\Controller;
+use App\Support\SafeUpload;
 use Illuminate\Support\Facades\Input;
 use Validator;
 
@@ -15,18 +16,8 @@ class PageSettingController extends Controller
 
     protected $rules =
     [
-//    /*    'logo'              => 'mimes:jpeg,jpg,png,svg',
-//        'favicon'           => 'mimes:jpeg,jpg,png,svg',
-//        'loader'            => 'mimes:gif',
-//        'admin_loader'      => 'mimes:gif',
-//        'affilate_banner'   => 'mimes:jpeg,jpg,png,svg',
-//        'error_banner'      => 'mimes:jpeg,jpg,png,svg',
-//        'popup_background'  => 'mimes:jpeg,jpg,png,svg',
-//        'invoice_logo'      => 'mimes:jpeg,jpg,png,svg',
-//        'user_image'        => 'mimes:jpeg,jpg,png,svg',
-//        'footer_logo'        => 'mimes:jpeg,jpg,png,svg',
-//        'wallet_photo'        => 'mimes:jpeg,jpg,png,svg',
-//        'loyalty_photo'        => 'mimes:jpeg,jpg,png,svg',*/
+        'about_photo'     => SafeUpload::IMAGE_RULE,
+        'portfolio_photo' => SafeUpload::IMAGE_RULE,
     ];
 
     public function __construct()
@@ -57,22 +48,20 @@ class PageSettingController extends Controller
 
         //--- Logic Section
         else {
-        $input = $request->all();
+        $input = $request->except(array_keys($this->rules));
         $data = Pagesetting::findOrFail(1);
 
 
        
             if ($file = $request->file('about_photo'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->about_photo);
+                $name = SafeUpload::move($file, 'assets/images');
                 $input['about_photo'] = $name;
             }
               
             if ($file = $request->file('portfolio_photo'))
             {
-                $name = time().$file->getClientOriginalName();
-                $data->upload($name,$file,$data->portfolio_photo);
+                $name = SafeUpload::move($file, 'assets/images');
                 $input['portfolio_photo'] = $name;
             }
               

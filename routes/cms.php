@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Admin\CmsAuthController;
 use App\Http\Controllers\Admin\CmsController;
+use App\Http\Controllers\Admin\CmsHealthController;
+use App\Http\Controllers\Admin\CmsMenuController;
+use App\Http\Controllers\Admin\CmsStructureController;
+use App\Http\Controllers\Admin\CmsTrashController;
 use App\Http\Controllers\WebsiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +31,27 @@ Route::middleware(['auth.admin', 'can:manage-cms'])->prefix('admin/cms')->name('
     Route::get('/items/{item}', [CmsController::class, 'item'])->name('items.edit');
     Route::put('/items/{item}', [CmsController::class, 'updateItem'])->name('items.update');
     Route::delete('/items/{item}', [CmsController::class, 'deleteItem'])->name('items.destroy');
+    Route::post('/pages/{page}/sections', [CmsStructureController::class, 'addSection'])->name('sections.store');
+    Route::post('/sections/{section}/duplicate', [CmsStructureController::class, 'duplicateSection'])->name('sections.duplicate');
+    Route::post('/sections/{section}/move', [CmsStructureController::class, 'moveSection'])->name('sections.move');
+    Route::patch('/sections/{section}/visibility', [CmsStructureController::class, 'sectionVisibility'])->name('sections.visibility');
+    Route::delete('/sections/{section}', [CmsStructureController::class, 'destroySection'])->name('sections.destroy');
+    Route::post('/items/{item}/move', [CmsStructureController::class, 'moveItem'])->name('items.move');
+    Route::patch('/items/{item}/visibility', [CmsStructureController::class, 'itemVisibility'])->name('items.visibility');
+    Route::post('/placements/{item}/reset', [CmsStructureController::class, 'resetPlacement'])->name('placements.reset');
+    Route::post('/placements/{page}/listing', [CmsStructureController::class, 'addToListing'])->name('placements.listing');
+    Route::get('/menu', [CmsMenuController::class, 'index'])->name('menu');
+    Route::post('/menu', [CmsMenuController::class, 'store'])->name('menu.store');
+    Route::get('/menu/{item}', [CmsMenuController::class, 'edit'])->name('menu.edit');
+    Route::put('/menu/{item}', [CmsMenuController::class, 'update'])->name('menu.update');
+    Route::post('/menu/{item}/move', [CmsMenuController::class, 'move'])->name('menu.move');
+    Route::delete('/menu/{item}', [CmsMenuController::class, 'destroy'])->name('menu.destroy');
+    Route::get('/messages', [CmsHealthController::class, 'messages'])->name('messages');
+    Route::get('/health', [CmsHealthController::class, 'index'])->name('health');
+    Route::post('/health/replace-image', [CmsHealthController::class, 'replaceImage'])->name('health.replace-image');
+    Route::get('/trash', [CmsTrashController::class, 'index'])->name('trash');
+    Route::post('/trash/{entry}/restore', [CmsTrashController::class, 'restore'])->name('trash.restore');
+    Route::delete('/trash/{entry}', [CmsTrashController::class, 'destroy'])->name('trash.destroy');
     Route::get('/media', [CmsController::class, 'media'])->name('media');
     Route::post('/media', [CmsController::class, 'upload'])->name('media.store');
     Route::put('/media/{media}', [CmsController::class, 'updateMedia'])->name('media.update');

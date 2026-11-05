@@ -21,7 +21,7 @@ class FinalCmsAuditTest extends TestCase
         parent::setUp();
         config(['database.default' => 'sqlite', 'database.connections.sqlite.database' => ':memory:', 'session.driver' => 'array', 'cache.default' => 'array']);
         DB::purge('sqlite');
-        $this->artisan('migrate', ['--path' => ['database/migrations/2026_11_05_000000_ensure_cms_admin_auth_tables.php', 'database/migrations/2026_11_05_000001_create_website_cms_tables.php'], '--force' => true])->assertExitCode(0);
+        $this->artisan('migrate', ['--path' => ['database/migrations/2026_11_05_000000_ensure_cms_admin_auth_tables.php', 'database/migrations/2026_11_05_000001_create_website_cms_tables.php', 'database/migrations/2026_11_05_000002_add_cms_content_relationships.php'], '--force' => true])->assertExitCode(0);
         app(WebsiteImporter::class)->import();
         $this->actingAs(Admin::create(['name' => 'Audit owner', 'email' => 'audit@example.test', 'password' => Hash::make('independent-audit-only'), 'role_id' => 0]), 'admin');
     }

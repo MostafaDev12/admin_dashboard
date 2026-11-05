@@ -1,3 +1,4 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
 @yield('css')
 <!-- Layout config Js -->
 <script src="{{ URL::asset('build/js/layout.js') }}"></script>
@@ -10,7 +11,8 @@
 <!-- custom Css-->
 <link href="{{ URL::asset('build/css/custom.min.css') }}"  rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('build/css/toastr.css') }}"  rel="stylesheet" type="text/css" />
-{{-- @yield('css') --}}
+{{-- <meta name="csrf-token" content="{{ csrf_token() }}">
+@yield('css') --}}
 <!--datatable css-->
 
 <link href="{{ URL::asset('build/libs/dropzone/dropzone.css') }}" rel="stylesheet">

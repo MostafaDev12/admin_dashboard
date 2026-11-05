@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\CmsItem;
 use App\Models\CmsPage;
 use App\Models\CmsSection;
+use App\Models\CmsTrashEntry;
 
 class CmsMediaReferences
 {
@@ -23,16 +24,34 @@ class CmsMediaReferences
             if (! is_string($value)) {
                 return false;
             }
+            // Trash snapshots hold content as stored JSON text.
+            if (str_starts_with($value, '{') || str_starts_with($value, '[')) {
+                $decoded = json_decode($value, true);
+                if (is_array($decoded)) {
+                    return $matches($decoded);
+                }
+            }
             // Match local paths, equivalent absolute URLs, and cache-busting queries.
             $candidate = parse_url($value, PHP_URL_PATH);
 
             return is_string($candidate) && rawurldecode($candidate) === rawurldecode($path);
         };
-        foreach ([CmsSection::class, CmsItem::class, CmsPage::class] as $model) {
+        foreach ([CmsSection::class, CmsItem::class] as $model) {
             foreach ($model::cursor() as $record) {
-                if ($matches($record instanceof CmsPage ? $record->seo : $record->content)) {
+                if ($matches($record->content)) {
                     return true;
                 }
+            }
+        }
+        foreach (CmsPage::cursor() as $page) {
+            if ($matches($page->seo) || $matches($page->listing)) {
+                return true;
+            }
+        }
+        // Removing a file a restorable record needs would make its restore incomplete.
+        foreach (CmsTrashEntry::where('type', '!=', 'archive')->cursor() as $entry) {
+            if ($matches($entry->payload)) {
+                return true;
             }
         }
 

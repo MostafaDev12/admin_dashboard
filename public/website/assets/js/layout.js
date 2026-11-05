@@ -20,13 +20,14 @@ function initLayout(){
   });
 
   // Mobile services dropdown / دروب داون الخدمات على الموبايل
-  const mobileServices=document.querySelector('[data-mobile-services]');
-  const mobileServicesTrigger=document.querySelector('[data-mobile-services-trigger]');
-  const mobileServicesMenu=document.querySelector('[data-mobile-services-menu]');
-  mobileServicesTrigger?.addEventListener('click',()=>{
-    const opened=mobileServices?.classList.toggle('is-open');
-    mobileServicesTrigger.setAttribute('aria-expanded',opened?'true':'false');
-    if(mobileServicesMenu) mobileServicesMenu.setAttribute('aria-hidden',opened?'false':'true');
+  document.querySelectorAll('[data-mobile-services]').forEach(mobileServices=>{
+    const mobileServicesTrigger=mobileServices.querySelector('[data-mobile-services-trigger]');
+    const mobileServicesMenu=mobileServices.querySelector('[data-mobile-services-menu]');
+    mobileServicesTrigger?.addEventListener('click',()=>{
+      const opened=mobileServices.classList.toggle('is-open');
+      mobileServicesTrigger.setAttribute('aria-expanded',opened?'true':'false');
+      if(mobileServicesMenu) mobileServicesMenu.setAttribute('aria-hidden',opened?'false':'true');
+    });
   });
 }
 

@@ -27,6 +27,7 @@
 </main>
 @if(isset($globals['global-footer']) && $globals['global-footer']->is_visible)@include($globals['global-footer']->template,['section'=>$globals['global-footer']])@endif
 @if(isset($globals['global-floating']) && $globals['global-floating']->is_visible)@include($globals['global-floating']->template,['section'=>$globals['global-floating']])@endif
+<script>window.websiteMessages=@json(app(\App\Services\CmsMessages::class)->forBrowser());</script>
 <script>window.websiteRotator=@json(isset($globals['global-rotator']) && $globals['global-rotator']->is_visible ? $globals['global-rotator']->items->where('is_visible',true)->sortBy('position')->pluck('content')->values() : []);</script>
 @foreach($page->assets['scripts'] as $script)<script src="{{ url($script) }}" defer></script>@endforeach
 </body>

@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
@@ -18,7 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-       // $this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     /**
@@ -44,14 +42,15 @@ class HomeController extends Controller
     /*Language Translation*/
     public function lang($locale)
     {
+        abort_unless(in_array($locale, ['en', 'ae', 'ch', 'fr', 'gr', 'it', 'ru', 'sp'], true), 404);
         if ($locale) {
             App::setLocale($locale);
             Session::put('lang', $locale);
             Session::save();
+
             return redirect()->back()->with('locale', $locale);
         } else {
             return redirect()->back();
         }
     }
-
 }

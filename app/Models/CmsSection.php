@@ -8,7 +8,7 @@ class CmsSection extends Model
 {
     protected $guarded = ['id'];
 
-    protected $casts = ['content' => 'array', 'schema' => 'array', 'groups' => 'array', 'is_visible' => 'boolean'];
+    protected $casts = ['content' => 'array', 'schema' => 'array', 'groups' => 'array', 'page_links' => 'array', 'is_visible' => 'boolean'];
 
     public function page()
     {
