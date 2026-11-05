@@ -59,8 +59,8 @@ return new class extends Migration
             'title_fr' => 'CangrowOnline',
             'smtp_host' => 'in-v3.mailjet.com',
             'smtp_port' => '587',
-            'smtp_user' => '0e05029e2dc70da691aa2223aa53c5be',
-            'smtp_pass' => '5df1b6242e86bce602c3fd9adc178460',
+            'smtp_user' => env('MAIL_USERNAME'),
+            'smtp_pass' => env('MAIL_PASSWORD'),
             'from_email' => 'official@cangrowonline.com',
             'from_name' => 'CangrowOnline',
         ]);

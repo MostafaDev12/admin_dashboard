@@ -19,6 +19,8 @@
 <body data-page="{{ $page->body_page }}">
 @if(isset($globals['global-header']) && $globals['global-header']->is_visible)@include($globals['global-header']->template,['section'=>$globals['global-header']])@endif
 <main>
+@if(session('website_success'))<div class="container" role="status"><p>{{ session('website_success') }}</p></div>@endif
+@if($errors->any())<div class="container" role="alert"><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
 @foreach($page->sections->where('is_visible',true) as $section)
 @include($section->template,['section'=>$section])
 @endforeach

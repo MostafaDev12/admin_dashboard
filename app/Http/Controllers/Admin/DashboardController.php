@@ -91,18 +91,15 @@ class DashboardController extends Controller
     public function changepass(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        if ($request->cpass){
-            if (Hash::check($request->cpass, $admin->password)){
-                if ($request->newpass == $request->renewpass){
-                    $input['password'] = Hash::make($request->newpass);
-                }else{
-                    return response()->json(array('errors' => [ 0 => 'Confirm password does not match.' ]));
-                }
-            }else{
-                return response()->json(array('errors' => [ 0 => 'Current password Does not match.' ]));
-            }
+        $data = $request->validate([
+            'cpass' => 'required|string',
+            'newpass' => 'required|string|min:12|max:200',
+            'renewpass' => 'required|same:newpass',
+        ]);
+        if (!Hash::check($data['cpass'], $admin->password)) {
+            return response()->json(['errors' => ['cpass' => ['Current password does not match.']]], 422);
         }
-        $admin->update($input);
+        $admin->update(['password' => Hash::make($data['newpass'])]);
         $msg = 'Successfully change your passwprd';
         return response()->json($msg);
     }

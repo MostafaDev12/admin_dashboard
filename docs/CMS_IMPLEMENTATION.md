@@ -1,5 +1,7 @@
 # Website CMS implementation
 
+The later [independent final audit](CMS_FINAL_AUDIT.md) supersedes the completion/readiness claims below and records verified coverage, safe fixes, and remaining gaps.
+
 The application destination is `C:/laragon/www/elbaz_laravel`. The original static source is `C:/laragon/www/dr.mohamed-baz`; it was not modified. Laravel 10.48.14 and the existing Velzon assets are used. No application dependency upgrades were required.
 
 ## Run the verified local installation

@@ -29,7 +29,7 @@ class WebsiteContent
                 return array_map($replace, $value);
             }
 
-return $value;
+            return $value;
         };
         $page->title = $replace($page->title);
         $page->description = $replace($page->description);

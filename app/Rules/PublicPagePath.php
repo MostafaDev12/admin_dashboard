@@ -15,7 +15,7 @@ class PublicPagePath implements ValidationRule
         $path = explode('?', $value, 2)[0];
         $reserved = ['admin', 'api', 'login', 'logout', 'register', 'password', 'appointment', 'index', 'build', 'storage', 'website'];
         $valid = preg_match('~^[a-zA-Z0-9_-]+(?:/[a-zA-Z0-9_-]+)*(?:\.html)?(?:\?(?:service|article)=[a-zA-Z0-9_-]+)?$~D', $value)
-            && !in_array(strtolower(explode('/', $path)[0]), $reserved, true)
+            && ! in_array(strtolower(explode('/', $path)[0]), $reserved, true)
             && strtolower($path) !== 'index.html';
         if (str_contains($value, '?')) {
             $valid = $valid && (preg_match('~^service-details\.html\?service=[a-zA-Z0-9_-]+$~D', $value)
@@ -23,7 +23,15 @@ class PublicPagePath implements ValidationRule
         } elseif (in_array($path, ['service-details.html', 'article-details.html'], true)) {
             $valid = false;
         }
-        if (!$valid) {
+        if ($valid) {
+            try {
+                $route = app('router')->getRoutes()->match(\Illuminate\Http\Request::create('/'.$path, 'GET'));
+                $valid = $route->getName() === 'website.page';
+            } catch (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                $valid = false;
+            }
+        }
+        if (! $valid) {
             $fail('Use a relative public page path without a leading slash, reserved route, or unsupported query string.');
         }
     }

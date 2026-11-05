@@ -54,7 +54,7 @@ class CmsController extends Controller
 
     public function createPage(Request $request)
     {
-        $data = $request->validate(['template_id' => 'required|exists:cms_pages,id', 'title' => 'required|string|max:190', 'slug' => ['required','unique:cms_pages,slug','regex:/^[a-z0-9-]+$/','max:150',new \App\Rules\PublicPagePath]]);
+        $data = $request->validate(['template_id' => 'required|exists:cms_pages,id', 'title' => 'required|string|max:190', 'slug' => ['required', 'unique:cms_pages,slug', 'regex:/^[a-z0-9-]+$/', 'max:150', new \App\Rules\PublicPagePath]]);
         $source = CmsPage::with('sections.items')->findOrFail($data['template_id']);
         $new = DB::transaction(function () use ($source, $data) {
             $new = $source->replicate();
@@ -72,7 +72,7 @@ class CmsController extends Controller
                 $this->cloneItems($section, $copy);
             }
 
-return $new;
+            return $new;
         });
 
         return redirect()->route('cms.pages.edit', $new)->with('success', 'Page copied as a draft. Edit its sections and publish when ready.');

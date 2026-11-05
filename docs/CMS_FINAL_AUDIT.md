@@ -1,0 +1,281 @@
+# Independent final CMS implementation audit
+
+Audit date: **5 November 2026 (Africa/Cairo)**. Application: `C:/laragon/www/elbaz_laravel`. Visual source: `C:/laragon/www/dr.mohamed-baz`.
+
+## Verdict
+
+**The implemented CMS genuinely manages the existing page content and its defined collections, but full completion and production readiness are not confirmed.** The verified scope is substantial: every initial public page renders, all defined collection groups support real mutations, and editable content reaches the website. The remaining limitations below prevent treating this as an unrestricted, fully consolidated CMS or a verified MySQL deployment.
+
+This audit inspected the implementation itself, added independent regression tests, exercised browser forms, inspected the effective configuration and SQLite schema, and compared new captures against the original HTML. The previous implementation report was treated as a list of claims to investigate, not as evidence.
+
+<!-- FINAL_NUMBERS_START -->
+
+- **30 tests passed, 1916 assertions.**
+- **70 independent visual comparisons: zero changed pixels.** This comprises 66 page/viewport pairs, one no-op save, one equivalent-content edit, and two interactive states.
+- **76 collection groups passed CRUD coverage; 475 text fields in 69 sections passed edit-to-public-output checks.**
+- **11 browser CMS screens passed; 25 unique internal destinations/fragments checked; zero broken seeded links; zero observed JavaScript exceptions.**
+- **2 failed resource responses:** the same missing clinic image on About and Contact.
+- **MySQL remains unverified/offline; no MySQL writes or environment changes were made.**
+<!-- FINAL_NUMBERS_END -->
+
+## Safety and database inspection
+
+- Effective default application configuration: **MySQL**, `127.0.0.1:3306`, database `velzon_admin`; configuration is not cached. The original `.env` also has `APP_DEBUG=true`.
+- Effective isolated CMS configuration: **SQLite**, `storage/app/website-v1.sqlite`, selected through `.env.cms`; debug is disabled.
+- Read-only MySQL connection attempts failed on **3306** and on the **3309** port declared in Laragon's `my.ini`. Exact transport error: `ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:<port>' (10061)` — connection refused. This is a connectivity blocker, not a verified credential or schema problem.
+- No MySQL server was started or reconfigured. No MySQL writes, migrations, imports, database replacements, or migration repository creation were attempted. A real MySQL migration dry-run could not be completed while the server was unavailable.
+- `.env` and `.env.cms` SHA-256 hashes were compared before and after the audit and remained unchanged. The original SQLite table counts remained unchanged; its integrity check returned `ok`, with no foreign-key violations.
+- A consistent **read-only SQLite backup** was made using `SQLite3::backup` into the new `storage/app/cms-final-audit.sqlite`. Browser mutations ran against this copy on loopback port `8791`, with database settings passed to that process only. PHPUnit mutations used fresh in-memory SQLite databases. The normal `8787` site was inspected through GET requests only.
+- Temporary image uploads were removed only after confirming they belonged to the audit and were unused. Existing application/user data was not reset or deleted. The working SQLite database has no administrator accounts; browser verification used temporary accounts in the audit copy rather than installing an account in the application database.
+
+Evidence: `storage/app/cms-verification/final-database-default.json`, `final-database-cms.json`, `final-database-after.json`, and `final-cleanup.json`.
+
+## Verified working features
+
+| Area | Independent verification |
+|---|---|
+| Public pages | All 22 initial page records were requested and captured at 1440, 768, and 390 pixel widths. Includes all eight service details and all nine article details, rather than only one representative detail page. |
+| Sections and public copy | 475 editable text fields in 69 sections were changed through authenticated HTTP endpoints and each marker was checked in the relevant public response. Other sections contain image/link collections or nonvisual settings. |
+| Repeatable collections | Every one of the 76 registered groups was created/cloned, opened in the editor, edited, rendered publicly, ordered, hidden, and deleted through its CMS endpoints. The nested footer group was included. |
+| Nested content | Child cloning, parent visibility, cascade deletion, valid parent selection, and repopulation of an empty collection were checked. Existing nested items can be managed separately. |
+| Images and backgrounds | A real browser edit changed the hero image. Separate tests changed a service card background image, its destination, and a media alternative-text value, then checked the resulting markup. |
+| Headings, paragraphs and buttons | Browser forms changed the hero heading, paragraph, image, CTA label, and CTA destination. A static original page with the equivalent content edits matched the Laravel render exactly. |
+| Menus and shared settings | Link/label editing and collection mutations reach public pages. Shared email changes propagate, alternative text is rendered, an optional favicon is rendered, and disabling global overrides now disables their effect. Ordering is limited to each defined group; see limitations. |
+| Pages and SEO | Publication, supported URL changes and redirects, template copying, SEO title/description, OG title, noindex, sitemap output, and canonical fallback were checked. A copied page no longer inherits the source page's SEO identity. |
+| Media library | A browser uploaded a real PNG. Tests exercised validation, safe storage, alt editing, original-asset protection, and rejection of deletion while media is referenced through either relative or absolute/cache-busted URLs. |
+| Appointments | Browser submission produced visible success feedback and a persisted request visible in the CMS. Tests checked validation and workflow status changes. This is request collection, not confirmed-calendar booking. |
+| Administrator management | Owner creation/update/deletion of an editor, password hashing, owner-only access, and rejection of editor attempts to create owners were tested. A pre-existing similarly named role cannot grant an editor unintended permissions. |
+| Authentication | Anonymous management access is rejected, login is rate limited, login/logout use the existing admin guard, CMS mutations require permissions, and a real browser mutation without a CSRF token returned `419`. |
+| Frontend JavaScript | Mobile navigation, nested mobile navigation, article search/category filtering, manual before/after slider input, and real timed carousel advancement passed. No JavaScript exceptions were observed in the audited public pages or CMS screens. |
+
+The eleven browser-checked CMS screens were dashboard, pages, services filter, articles filter, shared content, media, submissions, users, a page editor, a section editor, and an item editor. The PHP suite additionally opens every section editor and an editor for every collection-group shape. These checks cover the new CMS; they do **not** establish that every retained legacy admin screen works.
+
+## Defects fixed during this audit
+
+1. **Public URL validation:** the editor accepted leading slashes, reserved application paths, traversal-like paths, and query strings that `WebsiteController` could never resolve. The new `PublicPagePath` rule accepts only supported paths and detail selectors. Invalid selector arrays now return `404` instead of causing an exception. Redirects to valid falsey values such as the slug `0` now work.
+2. **Copied-page SEO:** newly copied pages retained canonical/title/noindex overrides from their source. New copies now start with their own page identity and empty SEO overrides.
+3. **Media reference safety:** deleting a media file checked exact strings only. Absolute URLs and cache-busting queries could bypass the reference check. `CmsMediaReferences` now checks normalized paths recursively before deletion.
+4. **Editor validation recovery:** submitting an array where a text field was expected correctly failed validation, but the returning editor then crashed in `mb_strlen`. The editor now safely falls back to the stored value when old input is not a string.
+5. **Whitespace/design regression after saves:** Laravel's generic trimming middleware removed significant spaces around inline spans and icons. CMS content values now retain those spaces. A no-op save is checked both by exact stored-value comparison and by a browser screenshot comparison.
+6. **Critical legacy profile privilege escalation:** `/admin/profile/update` passed all request fields into a model that permits `role_id` and `password`. An editor could set their role to owner and could assign an unhashed password. Profile edits now allow only name, email, phone, and a validated avatar. Avatar filenames are generated and SVG uploads are rejected. The previously reproducible promotion test now remains an editor and cannot access user administration.
+7. **Legacy password-change validation:** an empty request could use an undefined variable; weak/unconfirmed passwords were accepted by insufficient validation. The endpoint now requires the current password, a matching confirmation, and a password of at least 12 characters.
+8. **Editor-role collision:** an existing role with the display name “Website content editor” could be reused regardless of its permissions. Role lookup now includes the exact `cms` permission set.
+9. **Global-setting visibility:** the settings visibility toggle previously did not disable its substitutions or favicon. Both now honor the toggle.
+10. **Unsafe historical seed defaults:** the old users migration no longer creates a known default user/password. Literal SMTP credentials in the old settings migration were replaced with environment lookups. These are source-only changes: no old migration was run, and no existing accounts or credentials were changed. Repository history and the historical SQL dump were not purged; any credentials that were ever real still require owner-controlled rotation.
+11. **Duplicate IDs on new service cards:** cloning or adding a service card reused the source card's protected DOM ID. New non-imported items now receive unique IDs for protected identifier fields, while imported original IDs remain unchanged. Both clone and add-from-default flows are covered by a rendered-DOM test.
+12. **Non-JavaScript form feedback:** normal form submissions saved data and flashed success/errors, but public templates did not render that feedback. Conditional, escaped success/error notices now render after redirect without changing the initial page layout. Both success and validation paths are tested.
+
+Six of the original defects were first captured as failing regressions: URL handling, inherited SEO, media reference bypass, invalid editor input, whitespace loss, and profile promotion. Before/after results are retained in `final-before.*` and `final-security-before.*`. Additional safeguards were verified with targeted tests. No frontend CSS, image assets, typography, or Velzon visual design was replaced.
+
+## Missing functionality and constraints
+
+| Priority | Finding | Exact consequence / remaining work |
+|---|---|---|
+| High | Retained legacy mutation routes still use GET | Nine registered GET routes perform logout, cache clearing, deletion, or loader-state changes. These are outside the new CMS's safe POST/PUT/DELETE routes and remain a CSRF/design risk. Convert them with their legacy callers or explicitly retire the legacy modules before production. No destructive legacy GET route was invoked by this audit. |
+| High | Three legacy routes target missing methods | `admin/general-settings/Adminloader` → `GeneralSettingController::load2`; `admin/update-profile/{id}` → `DashboardController::updateProfile`; `admin/update-password/{id}` → `DashboardController::updatePassword`. These routes cannot be reported as working. Their contracts must be implemented/tested or the routes removed. The separately registered `profileupdate` and `changepass` methods were secured; that does not repair these missing aliases. |
+| High | Original MySQL application is unverified | Connectivity, live schema compatibility, existing account/role state, data conflicts, and a current backup/restore were not verifiable. Do not deploy based on SQLite success alone. |
+| Medium | Services/articles are page records plus independent placement records | Creating/publishing a page does not automatically create a listing card or menu entry. Editors must add the card and its destination separately. Hiding or deleting a page does not automatically hide/remove cards and menu links that reference it. A shared entity/reference lifecycle remains to be implemented if automatic cross-placement behavior is required. |
+| Medium | Navigation is split into fixed groups around fixed triggers | Group items have real CRUD, but they cannot be moved across the fixed services trigger. The services dropdown trigger itself is part of the header section rather than an independently removable/reorderable menu record. Desktop/mobile menus are separate editable placements. A consolidated menu model is needed for unrestricted nested-menu management. |
+| Medium | Fixed section templates constrain authoring | Editors can edit/order/hide existing sections and create pages from existing designs. There is no add/delete-section endpoint, arbitrary section-type creation, or reparent control for an existing nested item. Shared header/footer positions are fixed rather than reordered by their stored position values. This is a constrained-template CMS, not a general page builder. |
+| Medium | Runtime form feedback is hardcoded | Submission-success text and submission/network-failure messages require a code or translation-file change. They are not fields in the dashboard; see inventory below. |
+| Medium | Source map/video blocks are placeholders | The CMS can change their text and destinations, but there is no managed video player or embedded map provider. The home “media” link points to its own anchor and does not play a video. Approved destinations/content are needed; actual embeds require an integration. |
+| Medium | Historic secret/account exposure needs owner review | Migration literals were removed locally, but existing MySQL accounts, past credentials, the historical SQL dump, and repository history were not verified or remediated. Do not assume existing credentials became safe because source seeds changed. |
+| Medium | Production session/configuration hardening is not verified | The original environment has debug enabled; local HTTP does not use secure-only cookies. Explicit session revocation after password changes is not implemented by the audited CMS. Production debug/TLS/cookie/session settings need owner-approved configuration and tests. `.env` was deliberately left untouched. |
+| Low | New/copied navigation active state is template-based | Active navigation uses fixed `data-nav` / page-template identifiers. A newly copied menu item/page can inherit the original template's active-state behavior instead of its destination's identity. URLs still work, but destination-based highlighting needs a follow-up. |
+| Low | Rerunning the importer can restore deleted original records | Stable keys prevent duplicates and existing edited values are retained, but a deleted imported item is missing and is recreated on import. Use imports as controlled initialization/reconciliation, not an automatic editorial refresh. Tombstones or an explicit restore mode would preserve editorial deletion intent. |
+| Low | Global SEO fallback controls are limited | Per-page SEO works. There is no separately editable site-wide default meta-description/OG-defaults module; empty overrides fall back to that page's title/description. |
+
+These are explicit limits to the final objective. Most supplied page copy can be managed without code; **all possible website behavior and structural changes cannot**. The legacy route and MySQL findings also prevent a full production-readiness claim.
+
+## Hardcoded content inventory
+
+| Location | Content / classification | Editable in CMS? |
+|---|---|---|
+| `app/Http/Controllers/WebsiteController.php`, `contact()` | Arabic request-success feedback, repeated for JSON and redirect responses | **No**; move to managed feedback/localization fields if all public copy must be editable. |
+| `resources/js/website-forms.js` and built copy `public/website/assets/js/forms.js` | Arabic generic submission and network-error feedback | **No**; same follow-up. |
+| Form requests / Laravel validation strings | Public validation feedback and fixed submission field names/rules | **No** dashboard wording/schema editor. Validation/security rules should remain code-controlled; wording can be localized separately. |
+| `resources/views/website/page.blade.php` and frontend CSS/JS | Language/direction, asset dependencies, robot directives, structural classes, animation timings, and behavior selectors | Intentionally fixed implementation/design settings, not missed marketing-copy fields. |
+| `public/website/assets/js/service-details.js` and `article-details.js` | Original copied data arrays | Present as unused source assets. Active CMS page asset lists do **not** load these files; they do not drive the rendered detail pages. Remove/archive them if unused public artifacts are undesirable. |
+| Source provisional copy and placeholder links | Testimonials/about/medical draft copy, social links, map labels, promotional destinations | **Yes**; these are stored database content, not hardcoded active templates. Owner approval and real content are still required. |
+
+The seed manifest contains 898 text fields, 86 image fields, 194 link fields, and 168 icon fields, plus protected structural attributes. Counts exclude the separately imported global settings and carousel schema. The independent field-mutation and rendered-page checks establish more than the previous audit's Arabic-only template scan. Fixed implementation attributes were distinguished from public editable copy.
+
+## Visual, links, assets, and JavaScript findings
+
+- All 22 original page variants were captured at desktop/tablet/mobile sizes. The comparison checks decoded RGBA pixels directly, not only a perceptual threshold.
+- After fixing whitespace handling, saving the hero section without changes preserves its stored values and its screenshot. Editing the heading, paragraph, image, CTA label, and destination matches an equivalent-content edit of the original HTML.
+- Expanded mobile navigation and filtered-article screenshots were independently compared. Interactive navigation, filtering, the manual comparison slider, and real carousel progression were also checked without disabling their normal behavior.
+- Screenshot comparisons pause carousel timers for deterministic initial content and put the before/after slider at the same value. This is a test-only browser setup, not an application change. An initial carousel-timing mismatch and one background-tab screenshot timeout were corrected in the harness; the saved captures and the UI workflows were then rechecked successfully.
+- Internal destination/fragment checks found no broken links among the existing seeded links. This does not prevent an editor from deliberately entering an invalid destination or leaving a link to a later-deleted/hidden page.
+- The public resource crawl found exactly two missing-image responses: `/website/assets/images/about/clinic.jpg` on About and Contact. The file is also absent from the original static source. Its original behavior is visually preserved, but the missing asset is unresolved.
+- There are 178 `href="#"` occurrences across the 22 rendered pages, largely repeated header/footer social links, plus the clinic-video and directions placeholders. These need approved destinations. They are not counted as functioning integrations.
+- No other failed CSS/JavaScript/font/image network requests or JavaScript exceptions were observed in the resource crawl. No duplicate element IDs were observed in the initial public page set. Newly added service cards now receive unique protected IDs; relationships between identifiers and custom ARIA/label references still need review when adding future heterogeneous templates.
+
+## Database architecture and MySQL readiness
+
+The inspected SQLite database contains `cms_pages` (22), `cms_sections` (79), `cms_items` (272), `cms_media` (19), `cms_submissions` (0), `cms_redirects` (0), `admins` (0), `roles` (0), and a migrations repository with the two CMS migrations. The schema and model inspection confirmed:
+
+- Page → sections uses a foreign key with cascading deletion.
+- Section → items uses a foreign key with cascading deletion.
+- Item → parent item uses a self-referencing foreign key with cascading deletion. The controller additionally validates section/group membership when adding a nested item.
+- Page keys/slugs, section keys, import keys, media paths, and redirect source URLs have unique constraints. Collection section/group/order values are indexed.
+- Media references and page/menu/card destinations are string references, not relational foreign keys. Media protection is application-enforced; page-reference lifecycle is incomplete as noted above.
+- Administrator roles reuse the existing model/guard. `admins.role_id` is not a foreign key in the new compatibility migration; owner access also uses the legacy ID/role-zero convention.
+
+**Readiness verdict: blocked pending an approved MySQL inspection and restore-tested backup.** Static source review found additive CMS-prefixed tables, JSON columns, unique constraints, and foreign keys appropriate to a compatible MySQL/InnoDB installation. This is not a successful MySQL execution test. The compatibility migration silently skips existing auth tables and does not verify their columns/defaults, so live schema inspection is mandatory.
+
+### Safe plan for the owner to approve later
+
+1. Confirm the correct endpoint (`3306` versus Laragon's `3309`), credentials, database identity, MySQL version, SQL mode, collation, table engines, and application maintenance window. Read existing table definitions, indexes, foreign keys, row counts, and migration rows. Check for any existing `cms_*` names and auth-schema differences.
+2. Locate a **current** backup and prove it is restorable. `velzon_admin.sql` is a historical artifact, not a verified backup of the unavailable current server. No current MySQL backup was verified by this audit.
+3. After explicit owner approval, create a consistent dump using approved credentials and `--result-file` (rather than PowerShell text redirection), including routines/triggers/events. Use an InnoDB-compatible transaction strategy; coordinate locks/maintenance if any tables are nontransactional. Record a SHA-256 hash and backup manifest.
+4. Restore the dump into a separate disposable MySQL environment and compare schema, row counts, representative content, unique constraints, and authentication behavior. Retain the original backup unchanged.
+5. Run the two explicit CMS migration paths with `--pretend` against the approved staging clone and inspect the statements. Laravel migration commands can initialize their migration repository even when preparing a pretend run, so do not treat them as universally read-only on an uninitialized production database. Test actual application of those migrations on the staging clone only after approval.
+6. Review import-key conflicts and editorial data before any content import. Import initial content only under the approved initialization/reconciliation plan; do not blindly rerun imports over an existing edited CMS. Verify file/storage paths and the real deployment base URL.
+7. Keep application rollback separate from data rollback. The CMS migration's `down()` drops the CMS tables and would delete their content; the compatibility migration's `down()` intentionally leaves auth tables. An automatic `migrate:rollback` is therefore not a verified restoration strategy. Prefer a reviewed application rollback that preserves data, or an explicitly approved restore of the tested backup if required.
+8. Obtain separate explicit approval before any MySQL write, production migration/import, data restore, or deployment. None of those actions was executed in this audit.
+
+## Tests and tools actually executed
+
+- New independent tests: `tests/Feature/FinalCmsAuditTest.php`; existing tests were rerun as part of the full suite. Tests use only fresh in-memory SQLite data and the two explicit new migration paths.
+- Full-suite command: `php -d extension=pdo_sqlite vendor/phpunit/phpunit/phpunit --no-progress --log-junit storage/app/cms-verification/final-all.xml`. The installed executable was Laragon PHP 8.1.10.
+- `scripts/cms-final-snapshot.php`: effective configuration, environment hashes, read-only SQLite integrity/schema/count inspection, and consistent audit copy.
+- `scripts/cms-final-static.php`: registered route/action/middleware inspection and source-schema field inventory.
+- `scripts/cms-final-browser.cjs`: all page captures, internal links/fragments, eleven CMS screens, no-op save, actual content/SEO/media edits, persisted appointment submission, and CSRF rejection. The `CMS_FINAL_UI_ONLY=1` continuation rechecked the saved captures and reran UI work after the initial screenshot-harness interruption; the home capture was retaken with deterministic timers.
+- `scripts/cms-final-interactions.cjs`: expanded-navigation/filter visual states and normal live interactive behavior, including timed carousel movement.
+- `scripts/cms-final-resources.cjs`: all 22 public pages, HTTP resource failures, and JavaScript exceptions.
+- `scripts/cms-final-cleanup.php`: removed only unused generated audit uploads and checked integrity of the audit copy.
+- Targeted old-migration syntax checks and Laravel Pint on new/changed audit implementation files. `git diff --check` was also run.
+
+Audit artifacts are in `storage/app/cms-verification/`. They include the full PHPUnit JUnit/output, collection and section matrices, sanitized database/route inspection, resource failures, browser actions, original/Laravel PNGs, and the historical failed-test evidence. No credentials are included in this report.
+
+## Exact remaining tasks
+
+1. Restore MySQL connectivity and complete the owner-approved schema/backup/staging plan above. Keep the original environment unchanged until then.
+2. Retire or secure the nine legacy GET mutations and repair/remove the three missing-method routes; then test retained legacy modules against the restored staging database. Review legacy upload/mass-assignment paths outside the secured profile endpoint.
+3. Review debug/TLS/session settings and rotate any historical default accounts or credentials that were ever used. Existing MySQL account state and historical secret validity remain unknown.
+4. Provide the approved clinic image and replace the database-managed provisional copy, placeholder social/video/map/directions destinations, and any unapproved medical/testimonial text.
+5. Decide whether the product needs consolidated service/article entities and automatic placement/visibility/reference updates. Implement that relationship before claiming new pages automatically populate every listing.
+6. Consolidate menu records if arbitrary ordering/deletion/nesting across the fixed header groups is required. Implement destination-based active states for new menu/page identities.
+7. Add dashboard-managed runtime feedback text if “all public copy” includes form/system messages. Separately decide whether video/maps, notification delivery, calendar booking, global SEO defaults, extra sections, and reparenting are required features.
+8. Define an import deletion/reconciliation policy and unique-ID behavior for cloned templates before routine source reimports or broader template expansion.
+
+## CRUD coverage matrix
+
+All rows below refer to actual registered CMS groups, not an inferred list of possible content types. “Pass” includes add/clone, edit-screen rendering, content update reaching the public output, order persistence, hide/show-path checks, and deletion. Additional tests verify the visible order of a representative collection and parent/child cascades. This does not assert cross-group menu ordering or a consolidated service/article lifecycle.
+
+<!-- FINAL_CRUD_START -->
+
+| Section | Group | Collection | Nested | CRUD result |
+|---|---|---|---|---|
+| global-header | g-1 | top-social · a | No | Pass |
+| global-header | g-2 | top-contact · a | No | Pass |
+| global-header | g-3 | main-nav · a | No | Pass |
+| global-header | g-4 | nav-dropdown__menu · a | No | Pass |
+| global-header | g-5 | main-nav · a | No | Pass |
+| global-header | g-6 | menu-toggle · span | No | Pass |
+| global-header | g-7 | container mobile-menu__inner · a | No | Pass |
+| global-header | g-8 | mobile-services__menu · a | No | Pass |
+| global-header | g-9 | container mobile-menu__inner · a | No | Pass |
+| global-footer | g-1 | footer-social · a | No | Pass |
+| global-footer | g-2 | container footer-grid · div | No | Pass |
+| global-footer | g-2-1 | footer-col · a | Yes | Pass |
+| global-footer | g-3 | footer-col footer-contact · a | No | Pass |
+| index-s1 | g-1 | hero-badges · span | No | Pass |
+| index-s2 | g-1 | container trust-grid · div | No | Pass |
+| index-s3 | g-1 | expand-services · a | No | Pass |
+| index-s6 | g-1 | reviews-grid · article | No | Pass |
+| index-s7 | g-1 | contact-stack · a | No | Pass |
+| about-s1 | g-1 | about-points · span | No | Pass |
+| about-s2 | g-1 | clinic-features · div | No | Pass |
+| about-s3 | g-1 | contact-cards · a | No | Pass |
+| about-s3 | g-2 | select · option | No | Pass |
+| about-s3 | g-3 | select · option | No | Pass |
+| services-s1 | g-1 | breadcrumbs · span | No | Pass |
+| services-s2 | g-1 | services-grid · article | No | Pass |
+| services-s4 | g-1 | why-grid · div | No | Pass |
+| services-s5 | g-1 | journey-grid · div | No | Pass |
+| articles-s1 | g-1 | breadcrumbs · span | No | Pass |
+| articles-s2 | g-1 | select · option | No | Pass |
+| articles-s2 | g-2 | articles-grid · article | No | Pass |
+| contact-s1 | g-1 | breadcrumbs · span | No | Pass |
+| contact-s2 | g-1 | contact-list · a | No | Pass |
+| contact-s3 | g-1 | location-features · div | No | Pass |
+| service-cataract-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-cataract-s2 | g-1 | details-points · div | No | Pass |
+| service-cataract-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-vision-correction-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-vision-correction-s2 | g-1 | details-points · div | No | Pass |
+| service-vision-correction-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-retina-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-retina-s2 | g-1 | details-points · div | No | Pass |
+| service-retina-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-lenses-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-lenses-s2 | g-1 | details-points · div | No | Pass |
+| service-lenses-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-eyelid-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-eyelid-s2 | g-1 | details-points · div | No | Pass |
+| service-eyelid-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-exam-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-exam-s2 | g-1 | details-points · div | No | Pass |
+| service-exam-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-cornea-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-cornea-s2 | g-1 | details-points · div | No | Pass |
+| service-cornea-s3 | g-1 | container details-info-grid · div | No | Pass |
+| service-children-s1 | g-1 | breadcrumbs · span | No | Pass |
+| service-children-s2 | g-1 | details-points · div | No | Pass |
+| service-children-s3 | g-1 | container details-info-grid · div | No | Pass |
+| article-1-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-1-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-2-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-2-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-3-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-3-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-4-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-4-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-5-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-5-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-6-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-6-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-7-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-7-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-8-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-8-s1 | g-2 | article-sidebar · a | No | Pass |
+| article-9-s1 | g-1 | article-main__meta · span | No | Pass |
+| article-9-s1 | g-2 | article-sidebar · a | No | Pass |
+| global-rotator | slides | Carousel slides | No | Pass |
+
+<!-- FINAL_CRUD_END -->
+
+## Per-page content coverage
+
+<!-- FINAL_PAGES_START -->
+
+| Page key | Public URL | Sections | Defined groups | Visual coverage |
+|---|---|---|---|---|
+| index | / | 7 | 5 | 1440 / 768 / 390 |
+| about | /about.html | 3 | 5 | 1440 / 768 / 390 |
+| services | /services.html | 6 | 4 | 1440 / 768 / 390 |
+| articles | /articles.html | 4 | 3 | 1440 / 768 / 390 |
+| contact | /contact.html | 4 | 3 | 1440 / 768 / 390 |
+| service-cataract | /service-details.html?service=cataract | 4 | 3 | 1440 / 768 / 390 |
+| service-vision-correction | /service-details.html?service=vision-correction | 4 | 3 | 1440 / 768 / 390 |
+| service-retina | /service-details.html?service=retina | 4 | 3 | 1440 / 768 / 390 |
+| service-lenses | /service-details.html?service=lenses | 4 | 3 | 1440 / 768 / 390 |
+| service-eyelid | /service-details.html?service=eyelid | 4 | 3 | 1440 / 768 / 390 |
+| service-exam | /service-details.html?service=exam | 4 | 3 | 1440 / 768 / 390 |
+| service-cornea | /service-details.html?service=cornea | 4 | 3 | 1440 / 768 / 390 |
+| service-children | /service-details.html?service=children | 4 | 3 | 1440 / 768 / 390 |
+| article-1 | /article-details.html?article=1 | 2 | 2 | 1440 / 768 / 390 |
+| article-2 | /article-details.html?article=2 | 2 | 2 | 1440 / 768 / 390 |
+| article-3 | /article-details.html?article=3 | 2 | 2 | 1440 / 768 / 390 |
+| article-4 | /article-details.html?article=4 | 2 | 2 | 1440 / 768 / 390 |
+| article-5 | /article-details.html?article=5 | 2 | 2 | 1440 / 768 / 390 |
+| article-6 | /article-details.html?article=6 | 2 | 2 | 1440 / 768 / 390 |
+| article-7 | /article-details.html?article=7 | 2 | 2 | 1440 / 768 / 390 |
+| article-8 | /article-details.html?article=8 | 2 | 2 | 1440 / 768 / 390 |
+| article-9 | /article-details.html?article=9 | 2 | 2 | 1440 / 768 / 390 |
+
+Shared records independently inspected: header, footer, floating contacts, website identity/contact settings, and home carousel. The seed-derived page mapping was checked against route/controller rendering and the mutation tests rather than accepted from the previous mapping document.
+
+<!-- FINAL_PAGES_END -->
