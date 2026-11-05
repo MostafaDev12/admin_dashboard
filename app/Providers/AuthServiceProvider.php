@@ -25,6 +25,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
+        Gate::define('manage-cms', fn ($user = null) => (bool) auth('admin')->user()?->sectionCheck('cms'));
+
         //
     }
 }

@@ -1,0 +1,33 @@
+/* =========================================================
+   ARTICLES PAGE / صفحة المقالات
+========================================================= */
+
+/* ========================= FILTERS / البحث والتصنيف ========================= */
+.article-tools{display:grid;grid-template-columns:1fr 280px;gap:14px;margin-bottom:28px}
+.article-tools input,.article-tools select{padding:15px;border:1px solid var(--line);border-radius:14px;background:#fff;outline:none}
+.article-tools input:focus,.article-tools select:focus{border-color:var(--cyan)}
+
+/* ========================= ARTICLES GRID / شبكة المقالات ========================= */
+.articles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.article-card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(1,38,48,.05);transition:.25s}
+.article-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.article-card img{width:100%;height:220px;object-fit:cover}
+.article-card__body{padding:20px}
+.article-tag{display:inline-block;padding:6px 11px;border-radius:999px;background:#e5f6f9;color:#078faa;font-size:11px;font-weight:800}
+.article-card h3{font-size:19px;line-height:1.5;margin:12px 0 8px;font-weight:800}
+.article-card p{color:var(--muted);font-size:14px}
+.article-card a{display:inline-block;margin-top:16px;color:#069bb7;font-weight:800;font-size:13px}
+
+/* ========================= FEATURED ARTICLE / المقال المميز ========================= */
+.featured-article{background:#fff;border-top:1px solid var(--line)}
+.featured-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.featured-grid img{width:100%;max-height:430px;object-fit:cover;border-radius:24px;box-shadow:var(--shadow)}
+
+/* ========================= CTA / دعوة للتواصل ========================= */
+.article-cta{padding:44px 0;background:#fff;border-top:1px solid var(--line)}
+.article-cta .container{display:flex;justify-content:space-between;align-items:center;gap:30px}
+.article-cta .container>div:last-child{display:flex;gap:10px}
+
+/* ========================= RESPONSIVE / ريسبونسف ========================= */
+@media(max-width:900px){.articles-grid{grid-template-columns:1fr 1fr}.featured-grid{grid-template-columns:1fr}.article-cta .container{flex-direction:column;align-items:flex-start}}
+@media(max-width:600px){.article-tools,.articles-grid{grid-template-columns:1fr}.article-cta .container>div:last-child{flex-direction:column;width:100%}.article-card img{height:200px}}

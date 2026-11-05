@@ -1,0 +1,1 @@
+<option {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_1'] ?? []) }}>{{ $item1->content['f1'] ?? '' }}</option>

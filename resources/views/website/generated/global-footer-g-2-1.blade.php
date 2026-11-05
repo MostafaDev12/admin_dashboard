@@ -1,0 +1,1 @@
+<a href="{{ $item2->content['f1'] ?? '' }}" {{ new \Illuminate\View\ComponentAttributeBag($item2->content['attributes_1'] ?? []) }}>{{ $item2->content['f2'] ?? '' }}</a>

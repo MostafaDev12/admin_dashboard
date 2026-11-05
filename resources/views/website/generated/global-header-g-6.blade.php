@@ -1,0 +1,1 @@
+<span {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_1'] ?? []) }}></span>

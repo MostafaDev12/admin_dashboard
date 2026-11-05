@@ -1,4 +1,4 @@
-@extends('layouts.master-without-nav')
+@extends('cms.auth-layout')
 @section('title')
 @lang('translation.signin')
 @endsection
@@ -49,7 +49,7 @@
                                     @csrf
                                     <div class="mb-3">
                                         <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', 'admin@themesbrand.com') }}" id="username" name="email" placeholder="Enter username">
+                                        <input type="text" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="username" name="email" placeholder="Enter username">
                                         @error('email')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -63,7 +63,7 @@
                                         </div>
                                         <label class="form-label" for="password-input">Password <span class="text-danger">*</span></label>
                                         <div class="position-relative auth-pass-inputgroup mb-3">
-                                            <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" placeholder="Enter password" id="password-input" value="12345678">
+                                            <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" placeholder="Enter password" id="password-input">
                                             <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon"><i class="ri-eye-fill align-middle"></i></button>
                                             @error('password')
                                                 <span class="invalid-feedback" role="alert">
@@ -132,46 +132,5 @@
 <script src="{{ URL::asset('build/js/pages/particles.app.js') }}"></script>
 <script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
 
-<script> // LOGIN FORM
 
-    $("#loginform").on('submit',function(e){
-      e.preventDefault();
-      $('button.submit-btn').prop('disabled',true);
-      $('.alert-info').show();
-      $('.alert-info p').html($('#authdata').val());
-          $.ajax({
-           method:"POST",
-           url:$(this).prop('action'),
-           data:new FormData(this),
-           dataType:'JSON',
-           contentType: false,
-           cache: false,
-           processData: false,
-           success:function(data)
-           {
-              if ((data.errors)) {
-              $('.alert-success').hide();
-              $('.alert-info').hide();
-              $('.alert-danger').show();
-              $('.alert-danger ul').html('');
-                for(var error in data.errors)
-                {
-                  $('.alert-danger p').html(data.errors[error]);
-                }
-              }
-              else
-              {
-                $('.alert-info').hide();
-                $('.alert-danger').hide();
-                $('.alert-success').show();
-                $('.alert-success p').html('Success !');
-                window.location = data;
-              }
-              $('button.submit-btn').prop('disabled',false);
-           }
-  
-          });
-  
-    });
-    </script>
 @endsection

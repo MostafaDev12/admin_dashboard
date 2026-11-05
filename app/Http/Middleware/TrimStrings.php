@@ -16,4 +16,14 @@ class TrimStrings extends Middleware
         'password',
         'password_confirmation',
     ];
+
+    protected function transform($key, $value)
+    {
+        // CMS text nodes include significant spaces around inline spans and icons.
+        if (str_starts_with($key, 'content.') && request()->is('admin/cms/*')) {
+            return $value;
+        }
+
+        return parent::transform($key, $value);
+    }
 }

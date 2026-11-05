@@ -55,8 +55,10 @@ class DashboardController extends Controller
 
         $rules =
         [
-            'photo' => 'mimes:jpeg,jpg,png,svg,webp',
-            'email' => 'unique:admins,email,'.Auth::guard('admin')->user()->id
+            'name' => 'sometimes|required|string|max:190',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:4096',
+            'email' => 'sometimes|required|email|max:190|unique:admins,email,'.Auth::guard('admin')->user()->id,
+            'phone' => 'nullable|string|max:40',
         ];
 
 
@@ -66,18 +68,13 @@ class DashboardController extends Controller
           return response()->json(array('errors' => $validator->getMessageBag()->toArray()));
         }
         //--- Validation Section Ends
-        $input = $request->all();
+        // A profile edit must never accept role, password, or other privileged fields.
+        $input = $request->only(['name', 'email', 'phone']);
         $data = Auth::guard('admin')->user();
             if ($file = $request->file('photo'))
             {
-                $name = time().$file->getClientOriginalName();
+                $name = (string) \Illuminate\Support\Str::uuid().'.'.$file->extension();
                 $file->move('assets/images/admins/',$name);
-                if($data->photo != null)
-                {
-                    if (file_exists(public_path().'/assets/images/admins/'.$data->photo)) {
-                        unlink(public_path().'/assets/images/admins/'.$data->photo);
-                    }
-                }
             $input['photo'] = $name;
             }
         $data->update($input);

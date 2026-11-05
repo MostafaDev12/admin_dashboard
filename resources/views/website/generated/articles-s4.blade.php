@@ -1,0 +1,3 @@
+<section class="article-cta">
+      <div class="container"><div><h3>{{ $section->content['f1'] ?? '' }}</h3><p>{{ $section->content['f2'] ?? '' }}</p></div><div><a class="btn btn-primary" href="{{ $section->content['f3'] ?? '' }}">{{ $section->content['f4'] ?? '' }}</a><a class="btn btn-outline" href="{{ $section->content['f5'] ?? '' }}">{{ $section->content['f6'] ?? '' }}</a></div></div>
+    </section>

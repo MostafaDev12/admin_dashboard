@@ -9,6 +9,10 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 .env
+.env.cms
+/.phpunit.cache/
+/phpunit.xml.bak
+/.phpunit.result.cache
 /public/uploads
 /public/uploads_old
 /config/database.php

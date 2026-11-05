@@ -1,0 +1,32 @@
+/* =========================================================
+   ABOUT PAGE / صفحة عن الدكتور
+========================================================= */
+.about-hero{background:#fff;overflow:hidden}
+.about-hero__grid{min-height:560px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:50px}
+.about-hero__text h1{font-size:clamp(42px,5vw,56px);line-height:1.12;color:var(--navy-950);font-weight:800}
+.about-hero__text h2{font-size:22px;color:#315b66;margin:12px 0 20px}
+.about-hero__text p{color:var(--muted);max-width:620px}
+.about-points{display:flex;gap:14px;flex-wrap:wrap;margin:26px 0}
+.about-points span{padding:10px 13px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:13px}
+.about-points i,.clinic-features i,.contact-cards i{color:#079bb7}
+.about-hero__photo{height:560px;align-self:end}
+.about-hero__photo img{height:100%;width:100%;object-fit:contain;object-position:center bottom;border-radius:280px 280px 0 0;background:#fff}
+.clinic-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:70px;align-items:center;direction:ltr}
+.clinic-grid>div{direction:rtl}
+.clinic-photo{position:relative;border-radius:24px;overflow:hidden;box-shadow:var(--shadow);min-height:390px;background:#fff;border:1px solid var(--line)}
+.clinic-photo img{width:100%;height:430px;object-fit:cover}
+.clinic-photo.is-empty{box-shadow:none;background:#fff}
+.clinic-video{position:absolute;left:20px;bottom:20px;padding:12px 18px;border-radius:999px;background:rgba(1,38,48,.84);color:#fff}
+.clinic-video:hover{background:var(--cyan);color:var(--navy-950)}
+.clinic-features{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}
+.clinic-features div{display:flex;gap:12px;align-items:center;padding:15px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.clinic-features i{width:24px;text-align:center;font-size:18px}
+.about-form{background:#fff;border-top:1px solid var(--line)}
+.appointment-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:60px;align-items:center}
+.contact-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px}
+.contact-cards a{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;padding:16px;background:#fff;border:1px solid #d3e8ec;border-radius:15px}
+.contact-cards a:hover{background:var(--cyan)}
+.contact-cards span{grid-column:2;color:#69858d;font-size:12px}
+.form-card h3{font-size:27px;margin-bottom:20px}
+@media(max-width:900px){.about-hero__grid,.clinic-grid,.appointment-grid{grid-template-columns:1fr}.about-hero__photo{height:440px;order:-1}.contact-cards{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.about-hero__grid{padding-top:24px}.about-hero__photo{height:350px}.about-hero__text{text-align:center;padding-bottom:45px}.about-hero__text p{margin-inline:auto}.about-points{justify-content:center}.clinic-features,.contact-cards{grid-template-columns:1fr}.clinic-photo{min-height:260px}.clinic-photo img{height:300px}}

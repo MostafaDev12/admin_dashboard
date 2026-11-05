@@ -14,6 +14,7 @@ class RedirectIfNotAdmin
             return redirect()->route('admin.login');
         }
 
+        Auth::shouldUse($guard);
         return $next($request);
     }
 }

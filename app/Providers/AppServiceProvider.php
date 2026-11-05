@@ -21,8 +21,10 @@ class AppServiceProvider extends ServiceProvider
 
 
         view()->composer('*',function($settings){
-            $settings->with('gs', Generalsetting::first());
-            $settings->with('ps', Pagesetting::first());
+            // CMS pages do not depend on the legacy site's settings tables.
+            if (str_starts_with($settings->getName(), 'website.') || str_starts_with($settings->getName(), 'cms.')) return;
+            $settings->with('gs', Schema::hasTable('generalsettings') ? Generalsetting::first() : null);
+            $settings->with('ps', Schema::hasTable('pagesettings') ? Pagesetting::first() : null);
            
         });
 

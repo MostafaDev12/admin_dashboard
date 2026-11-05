@@ -1,0 +1,1 @@
+<a class="{{ $item1->content['f1'] ?? '' }}" data-nav="{{ $item1->content['f2'] ?? '' }}" href="{{ $item1->content['f3'] ?? '' }}" {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_1'] ?? []) }}>{{ $item1->content['f4'] ?? '' }}</a>

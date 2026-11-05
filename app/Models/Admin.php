@@ -37,7 +37,7 @@ class Admin extends  Authenticatable
             
             return true; 
         }
-        $sections = explode(" , ", $this->role->section);
+        $sections = explode(" , ", $this->role?->section ?? '');
         if (in_array($value, $sections)){
             return true;
         }else{

@@ -1,0 +1,1 @@
+<span {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_1'] ?? []) }}><i class="{{ $item1->content['f1'] ?? '' }}" {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_2'] ?? []) }}></i>{{ $item1->content['f2'] ?? '' }}</span>

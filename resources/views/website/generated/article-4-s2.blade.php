@@ -1,0 +1,3 @@
+<section class="section details-contact">
+      <div class="container details-contact-grid"><div><span class="eyebrow">{{ $section->content['f1'] ?? '' }}</span><h2 class="section-title">{{ $section->content['f2'] ?? '' }}</h2><p>{{ $section->content['f3'] ?? '' }}</p></div><div class="details-actions"><a class="btn btn-primary" href="{{ $section->content['f4'] ?? '' }}">{{ $section->content['f5'] ?? '' }}</a><a class="btn btn-outline" href="{{ $section->content['f6'] ?? '' }}"><i class="{{ $section->content['f7'] ?? '' }}"></i>{{ $section->content['f8'] ?? '' }}</a></div></div>
+    </section>

@@ -1,0 +1,1 @@
+<a href="{{ $item1->content['f1'] ?? '' }}" aria-label="{{ $item1->content['f2'] ?? '' }}" {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_1'] ?? []) }}><i class="{{ $item1->content['f3'] ?? '' }}" {{ new \Illuminate\View\ComponentAttributeBag($item1->content['attributes_2'] ?? []) }}></i></a>

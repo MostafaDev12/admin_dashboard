@@ -20,6 +20,7 @@ class Authenticate extends Middleware
 
      public function handle($request, Closure $next, ...$guards)
      {
+         return parent::handle($request, $next, ...$guards);
          // Your custom logic here
     //   if (!is_null(request()->user())) {
     //         return $next($request);
