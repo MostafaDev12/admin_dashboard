@@ -1,6 +1,6 @@
 # Media Manager and clean URL upgrade
 
-Verification date: 6 November 2026. This report describes local application code and isolated SQLite clones. **The working SQLite database has not been migrated or rewritten. Owner approval is required before activation.** No environment file, MySQL configuration, original asset, deployment, commit or remote push was changed.
+Verification date: 6 November 2026. This report describes local application code, isolated SQLite verification and the subsequently approved working activation. **The owner explicitly approved activation, and the working SQLite clean-URL upgrade is now applied and verified on port 8787.** No environment file, MySQL configuration, original asset, deployment, commit or remote push was changed.
 
 ## Media Manager
 
@@ -67,13 +67,13 @@ Legacy URLs redirect directly with 301 to confirmed published pages. Missing sel
 
 ## Database readiness, backup and migration
 
-Read-only inspection confirmed the effective CMS connection is `storage/app/website-v1.sqlite`; `.env` still describes the original MySQL installation. MySQL is unavailable: there are no TCP listeners on 3306, 3309 or 3311, and `C:/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysqld.exe.DISABLED-by-owner` remains present. MySQL tables, migration history and engine-specific conflicts cannot be inspected through a running connection. No start, repair, datadir access, configuration change or MySQL write was attempted. MySQL execution compatibility remains unverified; SQLite SQL dry-run and actual clone migration were executed. The working SQLite migration repository still contains only its original three CMS migrations.
+Read-only inspection confirmed the effective CMS connection is `storage/app/website-v1.sqlite`; `.env` still describes the original MySQL installation. MySQL is unavailable: there are no TCP listeners on 3306, 3309 or 3311, and `C:/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysqld.exe.DISABLED-by-owner` remains present. MySQL tables, migration history and engine-specific conflicts cannot be inspected through a running connection. No start, repair, datadir access, configuration change or MySQL write was attempted. MySQL execution compatibility remains unverified; SQLite SQL dry-run and actual clone migration were executed. At the initial read-only inspection, the working SQLite migration repository contained its original three CMS migrations; the approved activation below adds the fourth.
 
 The consistent SQLite backup is `C:/laragon/backups/elbaz-cms/media-url-20261106/before.sqlite`, created with SQLite's backup API from a read-only source. Backup SHA-256: `abb0f1e210ee2cd1c33e6b5be1cc1db6f68d0388fd678adc4546effd15bc6d15`. Backup and initial clone both passed integrity and foreign-key checks with matching row hashes.
 
 The pristine upgraded release clone is `storage/app/cms-media-url-release.sqlite`. The read-only preservation report is `storage/app/cms-verification/media-url-preservation.json`. It verifies all original IDs and rows survive: 22 pages, 80 sections, 285 items, 19 media, one owner administrator and one preserved archive. No unexpected column/content change was found; schema-defined links, collection defaults, canonical paths, the new leaf column and affected update timestamps are the intended changes. Media references and owner credentials remain intact. Foreign keys and integrity checks pass.
 
-Working database SHA-256 remains `42a21851264fdeb72dcbf8fe498b73353c2f7d568f1751e39105b5a88a708d79`. `.env` remains `1cab22d86b42408becd36cf15f5ede252f540f9f1d0bae80550d820fd4a6c036`; `.env.cms` remains `2150bab8b12d76c5309c1c3ff8048fe048ec1dad3d2bf479f8e5d1b2db29a8c1`.
+Before activation, working database SHA-256 was `42a21851264fdeb72dcbf8fe498b73353c2f7d568f1751e39105b5a88a708d79`. After the approved upgrade it is `95e210715d7fd14872c8ebd794d006affa027ce6cd0f83c20e6cb985dea8a9d4`. `.env` remains `1cab22d86b42408becd36cf15f5ede252f540f9f1d0bae80550d820fd4a6c036`; `.env.cms` remains `2150bab8b12d76c5309c1c3ff8048fe048ec1dad3d2bf479f8e5d1b2db29a8c1`.
 
 Commands below are **for a clone**, run from the project directory. PHP 8.1 with `pdo_sqlite` is required. Do not run against the working database until separately authorized.
 
@@ -121,6 +121,23 @@ node scripts/cms-media-url-admin.cjs
 
 The browser harness refuses the working database path. It creates a temporary clone administrator with a random secret and removes that account afterwards. Use separate clones for simultaneous media and URL workflows. Full browser runs capture new visual baselines against the original static source; `--workflows` reuses already-recorded visual evidence while repeating dashboard flows. Interrupted runs were corrected for test selectors/navigation timing; final successful reports contain no failed check. Only precisely identified test uploads were removed during cleanup. The pristine release clone is separate from workflow clones and contains no browser fixture accounts or pages.
 
-## Remaining activation and editorial blockers
+## Approved working activation
 
-Working-database activation awaits explicit owner approval. MySQL remains intentionally unavailable and is not a target of this upgrade. The pre-existing missing clinic image on About/Contact, provisional medical/editorial text and placeholder social/video/directions destinations still require approved owner content. They have not been invented or silently replaced. No full working-site clean-URL completion is claimed before activation and post-activation verification.
+The owner approved the specific local SQLite upgrade with “yes do it.” On 6 November 2026, the local application briefly entered maintenance mode, a fresh consistent backup was taken, the single additive public-slug migration passed its SQL dry-run and was applied, and the exact reviewed URL plan was applied. The application was immediately brought back online. No unrelated pending migration was executed. The working migration repository now contains four CMS migrations.
+
+Fresh backup: `C:/laragon/backups/elbaz-cms/url-activation-20261106-100209/before.sqlite`. Its SHA-256 is `abb0f1e210ee2cd1c33e6b5be1cc1db6f68d0388fd678adc4546effd15bc6d15`. An after-upgrade snapshot and before/after inspections are retained in that directory. Preservation verification ran on a read-only copy of the actual upgraded working database against this fresh backup: no missing IDs, unexpected content changes or foreign-key violations; integrity is `ok`. Counts remain 22 pages, 80 sections, 285 items, 19 media, one owner and one preserved archive. Owner credentials were neither reset nor replaced.
+
+Post-activation evidence:
+
+- `storage/app/cms-verification/media-url-activation-state.json`: approval, backup, hashes, migration history and verification totals.
+- `storage/app/cms-verification/media-url-working-preservation.json`: exact allowed-change comparison and integrity checks.
+- `storage/app/cms-verification/media-url-working-http.json`: **121 passing checks**, covering all 22 clean pages, their 22 direct legacy 301 redirects, canonical/OG tags, 24 internal destinations, invalid-selector 404s, tracking preservation, clean sitemap, robots and protected administration.
+- `storage/app/cms-verification/media-url-working/report.json`: **24 passing real-browser checks**. Home, About and eyelid surgery were compared with the original at 1440, 768 and 390 pixels: **nine additional zero-difference visual comparisons**. Real clicks opened `/about` and `/services/eyelid-surgery`; the original index and eyelid URLs redirected correctly. JavaScript errors: zero. Only the already-known clinic image was missing.
+
+The read-only probes are `scripts/cms-media-url-working-http.cjs` and `scripts/cms-media-url-working-browser.cjs`. They do not sign in, submit forms or create administrators. One initial probe encountered a Node/Undici transport assertion; the final native-HTTP probe completed all checks successfully.
+
+Live links: [Homepage](http://127.0.0.1:8787/), [About](http://127.0.0.1:8787/about), [Services](http://127.0.0.1:8787/services), [Eyelid surgery](http://127.0.0.1:8787/services/eyelid-surgery), [Articles](http://127.0.0.1:8787/articles), [Contact](http://127.0.0.1:8787/contact), [CMS](http://127.0.0.1:8787/admin/cms).
+
+## Remaining editorial and environment issues
+
+MySQL remains intentionally unavailable and was not a target of this upgrade. The pre-existing missing clinic image on About/Contact, provisional medical/editorial text and placeholder social/video/directions destinations still require approved owner content. They have not been invented or silently replaced. The clean-URL activation is complete; these existing editorial issues remain separate. The existing PHP server was not restarted; the process-local upload-limit settings described above take effect on its next launch with `scripts/cms.ps1 serve`.

@@ -1,0 +1,25 @@
+// Read-only post-activation checks. Never signs in, submits a form, or writes CMS data.
+const fs=require('fs'),path=require('path');
+const {chromium}=require('../storage/cms-tools/node_modules/playwright');
+const {PNG}=require('../storage/cms-tools/node_modules/pngjs');
+const base='http://127.0.0.1:8787',out=path.resolve('storage/app/cms-verification/media-url-working');
+fs.mkdirSync(out,{recursive:true});
+const report={checks:[],visuals:[],jsErrors:[],resources:[]};
+function check(name,pass,detail){report.checks.push({name,pass:!!pass,detail});if(!pass)throw Error(name+': '+JSON.stringify(detail));console.log('PASS '+name);}
+function pixels(a,b){const x=PNG.sync.read(a),y=PNG.sync.read(b);if(x.width!==y.width||x.height!==y.height)return null;let changed=0;for(let i=0;i<x.data.length;i+=4)if(x.data[i]!==y.data[i]||x.data[i+1]!==y.data[i+1]||x.data[i+2]!==y.data[i+2]||x.data[i+3]!==y.data[i+3])changed++;return changed;}
+async function settle(page){await page.evaluate(()=>Promise.all([document.fonts.ready,...Array.from(document.images).map(img=>img.complete?Promise.resolve():new Promise(r=>{img.addEventListener('load',r,{once:true});img.addEventListener('error',r,{once:true});}))]));await page.locator('[data-range]').evaluateAll(xs=>xs.forEach(x=>{x.dispatchEvent(new Event('pointerdown'));x.value=50;x.dispatchEvent(new Event('input'));}));await page.evaluate(async()=>{const layer=document.querySelector('.floating-contact');if(!layer)return;const frame=()=>new Promise(r=>requestAnimationFrame(r));layer.style.display='none';layer.getBoundingClientRect();await frame();await frame();layer.style.display='';layer.getBoundingClientRect();await frame();await frame();});}
+(async()=>{let browser;try{
+ browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+ const context=await browser.newContext({viewport:{width:1440,height:900}});context.setDefaultNavigationTimeout(60000);
+ await context.addInitScript(()=>{window.setInterval=()=>0;});
+ const remote=new Map();await context.route(()=>true,async route=>{const request=route.request(),url=new URL(request.url());if(!['GET','HEAD'].includes(request.method()))return route.abort();if(url.hostname==='127.0.0.1')return route.continue();if(!remote.has(url.href))remote.set(url.href,(async()=>{try{const r=await route.fetch({timeout:15000});const value={status:r.status(),headers:r.headers(),body:await r.body()};delete value.headers['content-encoding'];delete value.headers['content-length'];return value;}catch{return null;}})());const result=await remote.get(url.href);return result?route.fulfill(result):route.abort();});
+ const page=await context.newPage();page.on('pageerror',e=>report.jsErrors.push(e.message));page.on('response',r=>{if(r.status()>=400&&r.url().startsWith(base))report.resources.push({url:r.url(),status:r.status()});});
+ for(const width of [1440,768,390]){await page.setViewportSize({width,height:900});for(const row of [{key:'index',url:'/'},{key:'about',url:'/about'},{key:'service-eyelid',url:'/services/eyelid-surgery'}]){
+  const response=await page.goto(base+row.url,{waitUntil:'domcontentloaded'});check('browser response '+row.key+' '+width,response.status()===200);await settle(page);const screenshot=await page.screenshot({path:path.join(out,row.key+'-'+width+'.png'),fullPage:true});const reference=fs.readFileSync(path.resolve('storage/app/cms-verification/media-url/original-'+width+'-'+row.key+'.png'));const changed=pixels(reference,screenshot);report.visuals.push({key:row.key,width,changedPixels:changed});check('working design matches original '+row.key+' '+width,changed===0,changed);
+ }}
+ await page.setViewportSize({width:1440,height:900});await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});check('browser index.html redirects to homepage',new URL(page.url()).pathname==='/');
+ await Promise.all([page.waitForURL(base+'/about',{waitUntil:'domcontentloaded'}),page.locator('a[href="/about"]').first().click()]);check('About navigation opens clean URL',new URL(page.url()).pathname==='/about');
+ await page.goto(base+'/services',{waitUntil:'domcontentloaded'});await Promise.all([page.waitForURL(base+'/services/eyelid-surgery',{waitUntil:'domcontentloaded'}),page.locator('main a[href="/services/eyelid-surgery"]').first().click()]);check('eyelid service card opens clean URL',new URL(page.url()).pathname==='/services/eyelid-surgery');
+ await page.goto(base+'/service-details.html?service=eyelid',{waitUntil:'domcontentloaded'});check('browser legacy eyelid URL redirects correctly',new URL(page.url()).pathname==='/services/eyelid-surgery');
+ check('no JavaScript errors',report.jsErrors.length===0,report.jsErrors);check('only existing clinic-image asset is missing',report.resources.every(r=>r.status===404&&new URL(r.url).pathname==='/website/assets/images/about/clinic.jpg'),report.resources);
+}catch(error){report.error=error.stack;console.error(error.stack);process.exitCode=1;}finally{if(browser)await browser.close();fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));}})();
