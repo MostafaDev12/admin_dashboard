@@ -54,7 +54,11 @@ class ContentHealthTest extends CmsFeatureTestCase
         $this->post(route('cms.media.store'), ['file' => UploadedFile::fake()->image('approved-clinic.jpg'), 'alt' => 'Clinic'])->assertSessionHasNoErrors();
         $media = CmsMedia::where('name', 'approved-clinic.jpg')->firstOrFail();
 
-        $this->post(route('cms.health.replace-image'), ['from' => self::CLINIC_IMAGE, 'to' => $media->path])->assertSessionHasNoErrors()->assertSessionHas('success', 'Image replaced in 2 location(s).');
+        $this->post(route('cms.health.replace-image'), ['from' => self::CLINIC_IMAGE, 'to' => $media->path])->assertOk()->assertSee('Confirm image replacement');
+        $this->assertSame(self::CLINIC_IMAGE, $this->section('about-s2')->content['f1']);
+        $usage = app(\App\Services\CmsMediaUsage::class);
+        $locations = collect($usage->locations(self::CLINIC_IMAGE))->filter(fn ($v) => $v['editable'])->all();
+        $this->post(route('cms.media.replace-source'), ['source' => self::CLINIC_IMAGE, 'target' => $media->path, 'locations' => array_keys($locations), 'token' => $usage->token(self::CLINIC_IMAGE, $media->path, $locations), 'confirmed' => 1])->assertRedirect()->assertSessionHas('success', 'Replaced 2 selected content references. Original files were preserved.');
         $this->assertSame($media->path, $this->section('about-s2')->content['f1']);
         $this->assertSame($media->path, $this->section('contact-s3')->content['f1']);
         $this->assertStringContainsString($media->path, $this->publicHtml('/about.html'));
@@ -69,7 +73,7 @@ class ContentHealthTest extends CmsFeatureTestCase
     {
         Storage::fake('public');
         $this->post(route('cms.health.replace-image'), ['from' => self::CLINIC_IMAGE, 'to' => '/not/in/the/library.jpg'])->assertSessionHasErrors('to');
-        $this->post(route('cms.media.store'), ['file' => UploadedFile::fake()->create('brochure.pdf', 10, 'application/pdf')])->assertSessionHasNoErrors();
+        $this->post(route('cms.media.store'), ['file' => UploadedFile::fake()->createWithContent('brochure.pdf', "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF")])->assertSessionHasNoErrors();
         $this->post(route('cms.health.replace-image'), ['from' => self::CLINIC_IMAGE, 'to' => CmsMedia::where('name', 'brochure.pdf')->value('path')])->assertStatus(422);
         $this->assertSame(self::CLINIC_IMAGE, $this->section('about-s2')->content['f1']);
     }

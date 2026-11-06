@@ -48,6 +48,6 @@ class CmsContentRequest extends FormRequest
             $content[$key] = $value;
         }
 
-        return $content;
+        return app(\App\Services\CmsUrls::class)->enabled() ? app(\App\Services\CmsPageLinks::class)->canonicalize($content, $schema) : $content;
     }
 }

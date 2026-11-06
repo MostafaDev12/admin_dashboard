@@ -59,7 +59,7 @@
 
                                     <div class="mb-3">
                                         <div class="float-end">
-                                            <a href="{{ route('password.update') }}" class="text-muted">Forgot password?</a>
+                                            <a href="{{ url('/admin/forgot') }}" class="text-muted">Forgot password?</a>
                                         </div>
                                         <label class="form-label" for="password-input">Password <span class="text-danger">*</span></label>
                                         <div class="position-relative auth-pass-inputgroup mb-3">
@@ -74,7 +74,7 @@
                                     </div>
 
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="auth-remember-check">
+                                        <input class="form-check-input" type="checkbox" name="remember" value="1" id="auth-remember-check" @checked(old('remember'))>
                                         <label class="form-check-label" for="auth-remember-check">Remember me</label>
                                     </div>
 

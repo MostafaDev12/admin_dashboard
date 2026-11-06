@@ -30,9 +30,9 @@ class CmsHealthController extends Controller
             'to' => ['required', 'string', Rule::exists('cms_media', 'path')],
         ]);
         abort_unless(str_starts_with((string) CmsMedia::where('path', $data['to'])->value('mime'), 'image/'), 422, 'Select an image.');
-        $count = $health->replaceImage($data['from'], $data['to']);
+        $request->merge(['source' => $data['from'], 'target' => $data['to'], 'mode' => 'all']);
 
-        return back()->with('success', "Image replaced in {$count} location(s).");
+        return app(CmsMediaController::class)->preview($request, app(\App\Services\CmsMediaUsage::class));
     }
 
     public function messages()

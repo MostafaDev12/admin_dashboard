@@ -26,7 +26,7 @@ class PublicPagePath implements ValidationRule
         if ($valid) {
             try {
                 $route = app('router')->getRoutes()->match(\Illuminate\Http\Request::create('/'.$path, 'GET'));
-                $valid = $route->getName() === 'website.page';
+                $valid = $route->getName() === 'website.page' || (app(\App\Services\CmsUrls::class)->enabled() && str_starts_with((string) $route->getName(), 'website.') && ! in_array($route->getName(), ['website.sitemap', 'website.contact']));
             } catch (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
                 $valid = false;
             }

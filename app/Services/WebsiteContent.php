@@ -11,6 +11,16 @@ class WebsiteContent
     /** Resolve shared identity and contact references in memory, preserving per-page overrides. */
     public function apply(CmsPage $page, Collection $globals): void
     {
+        if ($page->public_slug !== null) {
+            $links = app(CmsPageLinks::class);
+            $pages = CmsPage::all()->keyBy('slug');
+            foreach ($page->sections->concat($globals->values())->unique('id') as $section) {
+                $section->content = $links->canonicalize($section->content, $section->schema ?? [], $pages);
+                foreach ($section->items as $item) {
+                    $item->content = $links->canonicalize($item->content, $item->schema ?? [], $pages);
+                }
+            }
+        }
         $this->hideUnavailablePlacements($page, $globals);
         $settings = $globals->get('global-site');
         if (! $settings || ! $settings->is_visible) {

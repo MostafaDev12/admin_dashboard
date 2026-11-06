@@ -79,7 +79,9 @@ class MenuMigrationTest extends CmsFeatureTestCase
 
     public function test_migration_replaces_fixed_groups_with_one_menu_and_archives_the_original(): void
     {
-        $before = $this->header()->items()->count();
+        $originals = $this->header()->items()->get()->keyBy('id');
+        $before = $originals->count();
+        $originalContent = $this->header()->content;
         app(CmsUpgrade::class)->run();
         $header = $this->header();
         $this->assertSame(CmsMenu::TEMPLATE, $header->template);
@@ -87,11 +89,18 @@ class MenuMigrationTest extends CmsFeatureTestCase
         $this->assertSame(['g-1', 'g-2', 'g-6', 'menu', 'menu-child'], $groups);
         foreach (['f8', 'f9', 'f10', 'f15', 'f16'] as $retired) {
             $this->assertArrayNotHasKey($retired, $header->schema);
-            $this->assertArrayNotHasKey($retired, $header->content);
+            $this->assertSame($originalContent[$retired], $header->content[$retired]);
         }
         $this->assertSame(5, $header->items()->where('group_key', CmsMenu::TOP)->count());
         $this->assertSame(8, $header->items()->where('group_key', CmsMenu::CHILD)->count());
-        $this->assertSame(0, $header->items()->whereIn('group_key', ['g-3', 'g-4', 'g-5', 'g-7', 'g-8', 'g-9'])->count());
+        $this->assertSame(24, $header->items()->whereIn('group_key', ['g-3', 'g-4', 'g-5', 'g-7', 'g-8', 'g-9'])->count());
+        foreach ($originals as $original) {
+            $retained = $original->fresh();
+            $this->assertNotNull($retained);
+            foreach (['content', 'schema', 'group_key', 'position', 'is_visible', 'parent_id', 'import_key'] as $field) {
+                $this->assertSame($original->$field, $retained->$field, $field);
+            }
+        }
         foreach ($header->items()->where('group_key', CmsMenu::CHILD)->get() as $child) {
             $this->assertNotNull($child->parent_id);
             $this->assertNotNull($child->target_page_id, $child->label);
@@ -162,12 +171,37 @@ class MenuMigrationTest extends CmsFeatureTestCase
 
     public function test_migration_uses_a_single_record_for_both_devices(): void
     {
+        $original = $this->legacy('g-3', 'index.html');
         app(CmsUpgrade::class)->run();
         $home = $this->header()->items()->where('group_key', CmsMenu::TOP)->get()->first(fn ($item) => $item->content['link'] === 'index.html');
-        $this->assertSame('global-header:'.json_decode(file_get_contents(database_path('content/website.json')), true)['sections'][array_search('global-header', array_column(json_decode(file_get_contents(database_path('content/website.json')), true)['sections'], 'key'))]['items'][7]['import_id'], $home->import_key);
+        $this->assertSame('global-header:consolidated-menu:'.$original->id, $home->import_key);
+        $this->assertSame($original->content, $original->fresh()->content);
         $this->assertSame('', $home->content['mobile_label']);
         $this->assertSame('1', $home->content['show_desktop']);
         $this->assertSame('1', $home->content['show_mobile']);
+    }
+
+    public function test_preserved_navigation_rows_cannot_be_edited_or_removed(): void
+    {
+        $item = $this->legacy('g-3', 'index.html');
+        app(CmsUpgrade::class)->run();
+        $before = $item->fresh()->getAttributes();
+        $this->asOwner();
+        $this->get(route('cms.items.edit', $item))->assertRedirect(route('cms.menu'));
+        $this->put(route('cms.items.update', $item), $this->payload($item))->assertStatus(409);
+        $this->delete(route('cms.items.destroy', $item))->assertStatus(409);
+        $this->post(route('cms.items.move', $item), ['direction' => 'up'])->assertStatus(409);
+        $this->patch(route('cms.items.visibility', $item), ['is_visible' => false])->assertStatus(409);
+        $this->assertSame($before, $item->fresh()->getAttributes());
+    }
+
+    public function test_upgrade_preserves_stale_original_media_metadata(): void
+    {
+        $media = \App\Models\CmsMedia::create(['name' => 'Retained original note', 'path' => '/website/missing-original-note.txt', 'mime' => 'text/plain', 'size' => 0, 'is_original' => true]);
+        $before = $media->fresh()->getAttributes();
+        $report = app(CmsUpgrade::class)->run();
+        $this->assertSame(0, $report['pruned_media_records']);
+        $this->assertSame($before, $media->fresh()->getAttributes());
     }
 
     public function test_repeating_the_upgrade_and_import_does_not_restore_retired_groups(): void

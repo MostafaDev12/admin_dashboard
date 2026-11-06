@@ -16,14 +16,14 @@ $titles = [
 <div class="card border-danger">
     <div class="card-header"><h5 class="mb-0">Replace a missing image everywhere</h5></div>
     <div class="card-body">
-        <p>Upload the approved image in the <a href="{{ route('cms.media') }}">media library</a>, then select it here. It replaces the missing file in every location listed below.</p>
+        <p>Upload the approved image in the <a href="{{ route('cms.media') }}">media library</a>, then select it here. Review and confirm the affected locations before any content changes.</p>
         @foreach($missingImages as $path => $count)
         <form method="POST" action="{{ route('cms.health.replace-image') }}" class="row g-2 align-items-end mb-2">
             @csrf
             <input type="hidden" name="from" value="{{ $path }}">
             <div class="col-md-5"><label class="form-label">Missing file ({{ $count }} location{{ $count === 1 ? '' : 's' }})</label><input class="form-control" dir="ltr" value="{{ $path }}" disabled></div>
-            <div class="col-md-5"><label class="form-label">Replacement from the media library</label><select class="form-select" name="to" required><option value="">Select an image</option>@foreach($images as $image)<option value="{{ $image->path }}">{{ $image->name }}</option>@endforeach</select></div>
-            <div class="col-md-2"><button class="btn btn-primary w-100">Replace</button></div>
+            <div class="col-md-5"><label class="form-label">Replacement from the media library</label>@include('cms.media-field',['id'=>'health-image-'.$loop->iteration,'name'=>'to','value'=>''])</div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">Review replacement</button></div>
         </form>
         @endforeach
     </div>

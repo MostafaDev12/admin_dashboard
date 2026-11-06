@@ -8,7 +8,8 @@
 <title>{{ $page->seo['title'] ?? $page->title }}</title>
 <meta name="description" content="{{ $page->seo['description'] ?? $page->description }}">
 <meta name="robots" content="{{ ($page->seo['noindex'] ?? false) ? 'noindex,nofollow' : 'index,follow' }}">
-<link rel="canonical" href="{{ $page->seo['canonical'] ?? $page->public_url }}">
+<link rel="canonical" href="{{ $page->public_slug !== null ? $page->public_url : ($page->seo['canonical'] ?? $page->public_url) }}">
+<meta property="og:url" content="{{ $page->public_url }}">
 <meta property="og:title" content="{{ $page->seo['og_title'] ?? $page->title }}">
 <meta property="og:description" content="{{ $page->seo['og_description'] ?? $page->description }}">
 @if(!empty($page->seo['og_image']))<meta property="og:image" content="{{ url($page->seo['og_image']) }}">@endif

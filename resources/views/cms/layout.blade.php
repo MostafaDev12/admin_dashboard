@@ -16,5 +16,6 @@
 @yield('content')</div></div>@include('layouts.footer')</div></div>
 <script src="{{ asset('build/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script><script src="{{ asset('build/libs/simplebar/simplebar.min.js') }}"></script><script src="{{ asset('build/libs/node-waves/waves.min.js') }}"></script><script src="{{ asset('build/libs/feather-icons/feather.min.js') }}"></script><script src="{{ asset('build/js/app.js') }}"></script>
 <script>document.querySelectorAll('[data-confirm]').forEach(f=>f.addEventListener('submit',e=>{if(!confirm(f.dataset.confirm))e.preventDefault()}));document.querySelectorAll('[data-media-select]').forEach(s=>s.addEventListener('change',()=>{const input=document.getElementById(s.dataset.mediaSelect);input.value=s.value;const preview=document.getElementById('preview-'+s.dataset.mediaSelect);if(preview){preview.src=s.value;preview.hidden=!s.value;}}));</script>
+@include('cms.media-picker')
 </body></html>
 

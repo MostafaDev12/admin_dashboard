@@ -39,6 +39,11 @@ class CmsMenu
         return $header?->template === self::TEMPLATE;
     }
 
+    public static function isRetiredItem(CmsItem $item): bool
+    {
+        return in_array($item->group_key, self::RETIRED_GROUPS, true) && self::isConsolidated($item->section);
+    }
+
     public function header(): CmsSection
     {
         return CmsSection::where('key', 'global-header')->firstOrFail();
@@ -101,7 +106,7 @@ class CmsMenu
             'template' => self::TEMPLATE,
             'groups' => $groups,
             'schema' => array_diff_key($header->schema, array_flip(self::RETIRED_FIELDS)),
-            'content' => array_diff_key($content, array_flip(self::RETIRED_FIELDS)),
+            'content' => $content,
         ]);
 
         return ['menu_migrated' => true, 'menu_items' => count($top) + count($children)];
@@ -166,18 +171,12 @@ class CmsMenu
                 'attributes_1' => $original?->content['attributes_1'] ?? [],
             ], $extra),
         ];
-        if ($original) {
-            $original->forceFill($values)->saveQuietly();
-            $record = $original;
-        } else {
-            $record = CmsItem::firstOrNew(['import_key' => self::TRIGGER_IMPORT_KEY]);
-            $record->forceFill($values)->saveQuietly();
-        }
-        // The desktop record now carries both placements. The archive keeps the original.
-        if ($desktop && $mobile && $mobile['item']) {
-            $this->trash->tombstone('item', $mobile['item']->import_key);
-            $mobile['item']->delete();
-        }
+        // New rows carry the consolidated menu. Keep every original row and its content;
+        // retired groups are excluded by tree() and by the header's editable group list.
+        $record = CmsItem::firstOrNew(['import_key' => $original
+            ? 'global-header:consolidated-menu:'.$original->id
+            : self::TRIGGER_IMPORT_KEY]);
+        $record->forceFill($values)->saveQuietly();
 
         return $record;
     }

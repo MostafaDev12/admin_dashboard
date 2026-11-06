@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\CmsMedia;
 use App\Models\CmsSection;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +20,9 @@ class CmsUpgrade
             $report = $this->menu->migrate();
             $report += $this->placements->backfill();
             $report['map_fields'] = $this->addMapDestination();
-            $report['pruned_media_records'] = $this->pruneNonMediaRecords();
+            // Activation must retain even stale original media metadata. Content health
+            // can report missing files; upgrading is not permission to remove records.
+            $report['pruned_media_records'] = 0;
 
             return $report;
         });
@@ -43,19 +44,5 @@ class CmsUpgrade
         }
 
         return $count;
-    }
-
-    /** The source's "put the clinic image here" note was registered as a media file by mistake. */
-    private function pruneNonMediaRecords(): int
-    {
-        $pruned = 0;
-        foreach (CmsMedia::where('is_original', true)->where('mime', 'like', 'text/%')->get() as $record) {
-            if (! is_file(public_path(rawurldecode($record->path)))) {
-                $record->delete();
-                $pruned++;
-            }
-        }
-
-        return $pruned;
     }
 }

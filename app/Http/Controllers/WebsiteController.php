@@ -15,7 +15,7 @@ class WebsiteController extends Controller
     public function show(Request $request, string $path = '')
     {
         $slug = ltrim($path, '/');
-        if ($slug === 'index.html') {
+        if ($slug === 'index.html' && ! app(\App\Services\CmsUrls::class)->enabled()) {
             $slug = '';
         }
         if ($slug === 'service-details.html') {
@@ -30,7 +30,16 @@ class WebsiteController extends Controller
         }
         $redirect = DB::table('cms_redirects')->where('from', $slug)->first();
         if ($redirect) {
-            return redirect(url($redirect->to), $redirect->status ?? 301);
+            abort_unless(CmsPage::where('slug', $redirect->to)->where('is_visible', true)->exists(), 404);
+            $query = $request->query();
+            if ($path === 'service-details.html') {
+                unset($query['service']);
+            }
+            if ($path === 'article-details.html') {
+                unset($query['article']);
+            }
+
+            return redirect(url($redirect->to).($query ? '?'.http_build_query($query) : ''), $redirect->status ?? 301);
         }
         $page = CmsPage::with('sections.items')->where('slug', $slug)->where('is_visible', true)->firstOrFail();
         $globals = CmsSection::with('items')->whereNull('page_id')->get()->keyBy('key');

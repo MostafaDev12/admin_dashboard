@@ -22,8 +22,15 @@ return new class extends Migration
             // Fixed link fields that lead to a page: field => page id.
             $t->json('page_links')->nullable();
         });
+        // Laravel's SQLite ALTER TABLE compiler omits table-level foreign keys.
+        // An inline nullable reference is supported without rebuilding existing rows.
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement('ALTER TABLE "cms_items" ADD COLUMN "target_page_id" INTEGER REFERENCES "cms_pages" ("id") ON DELETE SET NULL');
+        }
         Schema::table('cms_items', function (Blueprint $t) {
-            $t->foreignId('target_page_id')->nullable()->constrained('cms_pages')->nullOnDelete();
+            if (DB::getDriverName() !== 'sqlite') {
+                $t->foreignId('target_page_id')->nullable()->constrained('cms_pages')->nullOnDelete();
+            }
             $t->boolean('is_managed')->default(false);
             // Roles this placement customises instead of inheriting from its page.
             $t->json('overrides')->nullable();

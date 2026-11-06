@@ -30,6 +30,9 @@ class CmsContentHealth
                 $this->scan($section, $section->content ?? [], $section->schema ?? [], $this->location($section), route('cms.sections.edit', $section), $bySlug, $report);
             }
             foreach ($section->items as $item) {
+                if (CmsMenu::isRetiredItem($item)) {
+                    continue;
+                }
                 $location = $this->location($section).' → '.$item->label;
                 $url = route('cms.items.edit', $item);
                 $parentVisible = ! $item->parent_id || ($section->items->firstWhere('id', $item->parent_id)?->is_visible ?? false);

@@ -2,7 +2,7 @@
 @section('title',\App\Support\CmsLabels::section($section->label))
 @section('content')
 @php($editableGroups = collect($section->groups)->reject(fn ($group) => in_array($group['key'], \App\Services\CmsMenu::GROUPS, true))->values())
-@php($editableItems = $section->items->reject(fn ($item) => in_array($item->group_key, \App\Services\CmsMenu::GROUPS, true)))
+@php($editableItems = $section->items->whereIn('group_key', $editableGroups->pluck('key')->all()))
 <div class="d-flex gap-2 mb-3 flex-wrap">
     <a class="btn btn-soft-secondary" href="{{ $section->page_id ? route('cms.pages.edit',$section->page_id) : route('cms.globals') }}">Back</a>
     @if(\App\Services\CmsMenu::isConsolidated($section))<a class="btn btn-soft-primary" href="{{ route('cms.menu') }}">Manage navigation links</a>@endif

@@ -53,6 +53,11 @@ Route::middleware(['auth.admin', 'can:manage-cms'])->prefix('admin/cms')->name('
     Route::post('/trash/{entry}/restore', [CmsTrashController::class, 'restore'])->name('trash.restore');
     Route::delete('/trash/{entry}', [CmsTrashController::class, 'destroy'])->name('trash.destroy');
     Route::get('/media', [CmsController::class, 'media'])->name('media');
+    Route::get('/media/picker', [\App\Http\Controllers\Admin\CmsMediaController::class, 'picker'])->name('media.picker');
+    Route::post('/media/replace-source', [\App\Http\Controllers\Admin\CmsMediaController::class, 'replace'])->name('media.replace-source');
+    Route::get('/media/{media}', [\App\Http\Controllers\Admin\CmsMediaController::class, 'show'])->name('media.show');
+    Route::post('/media/{media}/preview', [\App\Http\Controllers\Admin\CmsMediaController::class, 'preview'])->name('media.preview');
+    Route::post('/media/{media}/replace', [\App\Http\Controllers\Admin\CmsMediaController::class, 'replace'])->name('media.replace');
     Route::post('/media', [CmsController::class, 'upload'])->name('media.store');
     Route::put('/media/{media}', [CmsController::class, 'updateMedia'])->name('media.update');
     Route::delete('/media/{media}', [CmsController::class, 'deleteMedia'])->name('media.destroy');
@@ -65,4 +70,9 @@ Route::get('/sitemap.xml', [WebsiteController::class, 'sitemap'])->name('website
 Route::get('/robots.txt', fn () => response("User-agent: *\nDisallow: /admin\nSitemap: ".route('website.sitemap')."\n", 200, ['Content-Type' => 'text/plain']));
 Route::post('/appointment', [WebsiteController::class, 'contact'])->middleware('throttle:10,1')->name('website.contact');
 Route::get('/', [WebsiteController::class, 'show'])->name('front.index');
-Route::get('/{path}', [WebsiteController::class, 'show'])->where('path', '(?!admin(?:/|$)|api(?:/|$)).*')->name('website.page');
+foreach (['about' => 'about', 'services' => 'services.index', 'articles' => 'articles.index', 'contact' => 'contact.show'] as $path => $name) {
+    Route::get('/'.$path, [WebsiteController::class, 'show'])->defaults('path', $path)->name('website.'.$name);
+}
+Route::get('/services/{leaf}', fn (\Illuminate\Http\Request $request, string $leaf) => app(WebsiteController::class)->show($request, 'services/'.$leaf))->where('leaf', '[a-z0-9-]+')->name('website.services.show');
+Route::get('/articles/{leaf}', fn (\Illuminate\Http\Request $request, string $leaf) => app(WebsiteController::class)->show($request, 'articles/'.$leaf))->where('leaf', '[a-z0-9-]+')->name('website.articles.show');
+Route::get('/{path}', [WebsiteController::class, 'show'])->where('path', '(?!(?:admin|api|storage|build|assets|website|login|logout|register|password)(?:/|$)).*')->name('website.page');

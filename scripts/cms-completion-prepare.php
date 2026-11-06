@@ -11,8 +11,8 @@ if ($target === '' || realpath(dirname($target)) !== realpath($root.'/storage/ap
     fwrite(STDERR, "Refusing: the copy must be a different file directly inside storage/app.\n");
     exit(1);
 }
-if (is_file($target) && ! unlink($target)) {
-    fwrite(STDERR, "Could not replace the previous verification copy.\n");
+if (file_exists($target)) {
+    fwrite(STDERR, "Refusing to overwrite an existing verification copy. Choose an unused path.\n");
     exit(1);
 }
 $before = hash_file('sha256', $source);

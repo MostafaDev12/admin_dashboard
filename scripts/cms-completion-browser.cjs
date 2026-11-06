@@ -10,16 +10,21 @@ const cheerio = require('../storage/cms-tools/node_modules/cheerio');
 
 // CMS_COMPLETION_TARGET=live compares the running 8787 site with GET requests only: no copy, no upgrade.
 const live = process.env.CMS_COMPLETION_TARGET === 'live';
-const out = path.resolve(live ? 'storage/app/cms-verification/completion-unupgraded' : 'storage/app/cms-verification/completion');
-const reportFile = 'storage/app/cms-verification/' + (live ? 'completion-report-unupgraded.json' : 'completion-report.json');
+const runName = process.env.CMS_COMPLETION_RUN;
+if (runName && !/^[a-z0-9-]+$/.test(runName)) throw new Error('Invalid evidence run name.');
+const out = path.resolve('storage/app/cms-verification/' + (runName || (live ? 'completion-unupgraded' : 'completion')));
+const reportFile = 'storage/app/cms-verification/' + (runName ? runName + '-report.json' : (live ? 'completion-report-unupgraded.json' : 'completion-report.json'));
 fs.mkdirSync(out, { recursive: true });
 const php = 'C:/laragon/bin/php/php-8.1.10-Win32-vs16-x64/php.exe';
 const chrome = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
-const copy = path.resolve('storage/app/cms-completion.sqlite').replace(/\\/g, '/');
+const copy = path.resolve(process.env.CMS_COMPLETION_COPY || 'storage/app/cms-completion.sqlite').replace(/\\/g, '/');
 const source = path.resolve('../dr.mohamed-baz');
 const base = live ? 'http://127.0.0.1:8787' : 'http://127.0.0.1:8793', original = 'http://127.0.0.1:8792';
 const env = { ...process.env, APP_ENV: 'cms', APP_URL: base, DB_CONNECTION: 'sqlite', DB_DATABASE: copy };
 const seed = JSON.parse(fs.readFileSync('database/content/website.json', 'utf8'));
+const requestedPages = process.env.CMS_COMPLETION_PAGES?.split(',').filter(Boolean);
+const visualPages = requestedPages ? seed.pages.filter(p => requestedPages.includes(p.key)) : seed.pages;
+if (requestedPages && visualPages.length !== new Set(requestedPages).size) throw new Error('Unknown visual page key.');
 const stages = (process.argv[2] || (live ? 'visual,states,live,crawl' : 'visual,states,live,crawl,screens,noop,edit,service,article,menu,sections,messages,security,final,health')).split(',');
 const readOnlyStages = ['visual', 'states', 'live', 'crawl'];
 if (live && stages.some((stage) => !readOnlyStages.includes(stage))) throw new Error('The live site is only compared with read-only stages.');
@@ -70,7 +75,7 @@ const staticServer = http.createServer((req, res) => {
   });
 });
 async function settle(page) {
-  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(() => Promise.race([document.fonts.ready, new Promise((_, reject) => setTimeout(() => reject(new Error('Fonts did not settle within 30 seconds')), 30000))]));
   await page.locator('[data-range]').evaluateAll((xs) => xs.forEach((x) => { x.dispatchEvent(new Event('pointerdown')); x.value = 50; x.dispatchEvent(new Event('input')); }));
 }
 // The original injects its floating buttons with fetch(); Laravel renders them server-side. The content
@@ -123,7 +128,11 @@ async function layout(page) {
   const browser = await chromium.launch({ executablePath: chrome, headless: true });
   // External fonts and icons load from CDNs, so 'networkidle' can stall; allow it time instead of failing a check.
   const makeContext = browser.newContext.bind(browser);
-  browser.newContext = async (...args) => { const context = await makeContext(...args); context.setDefaultNavigationTimeout(90000); context.setDefaultTimeout(60000); return context; };
+  browser.newContext = async (...args) => {
+    const context = await makeContext(...args);
+    context.setDefaultNavigationTimeout(90000); context.setDefaultTimeout(60000);
+    return context;
+  };
   const watch = (page, label) => {
     page.on('pageerror', (e) => report.jsErrors.push({ at: label, url: page.url(), error: e.message }));
     page.on('dialog', (d) => d.accept());
@@ -136,6 +145,7 @@ async function layout(page) {
     watch(page, 'still');
 
     async function compareToOriginal(slug, width, label) {
+      console.log('COMPARE', label, width, slug);
       await page.setViewportSize({ width, height: 900 });
       await reference.setViewportSize({ width, height: 900 });
       await page.goto(base + '/' + slug, { waitUntil: 'networkidle' }); await settle(page);
@@ -152,11 +162,12 @@ async function layout(page) {
 
     if (stages.includes('visual')) {
       for (const width of widths) {
-        for (const record of seed.pages) await compareToOriginal(record.slug || 'index.html', width, 'laravel');
+        for (const record of visualPages) await compareToOriginal(record.slug || 'index.html', width, 'laravel');
         console.log('Captured all pages at', width);
       }
       const set = report.visuals.filter((v) => v.label === 'laravel');
-      check('66 page and viewport comparisons have zero changed pixels', set.length === 66 && set.every((v) => v.changedPixels === 0), set.filter((v) => v.changedPixels !== 0));
+      const expected = visualPages.length * widths.length;
+      check(expected + ' page and viewport comparisons have zero changed pixels', set.length === expected && set.every((v) => v.changedPixels === 0), set.filter((v) => v.changedPixels !== 0));
     }
 
     if (stages.includes('states')) {
@@ -706,8 +717,15 @@ async function layout(page) {
     await browser.close();
     staticServer.close();
     if (app) app.kill();
-    // Only files this run uploaded; the copy database is disposable.
-    if (fs.existsSync(uploadsDir)) for (const file of fs.readdirSync(uploadsDir)) if (!uploadsBefore.has(file)) { fs.unlinkSync(path.join(uploadsDir, file)); }
+    // Read-only runs never remove uploads. On a clone, remove only the upload
+    // recorded by this harness, never unrelated files added during verification.
+    if (!live && fs.existsSync(uploadsDir)) {
+      const paths = JSON.parse(evalPhp("echo json_encode(App\\Models\\CmsMedia::where('name','verification-only.png')->where('is_original',false)->pluck('path'));"));
+      for (const upload of paths) if (/^\/storage\/cms\/[\w.-]+$/.test(upload)) {
+        const file = path.basename(upload);
+        if (!uploadsBefore.has(file) && fs.existsSync(path.join(uploadsDir,file))) fs.unlinkSync(path.join(uploadsDir,file));
+      }
+    }
   }
   report.summary = {
     comparisons: report.visuals.length,
@@ -722,8 +740,7 @@ async function layout(page) {
   };
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report.summary, null, 2));
-  // The copy was edited by the flows above and its uploads are gone, so it is not worth keeping.
-  if (!live && stages.includes('health')) { await new Promise((resolve) => setTimeout(resolve, 500)); try { fs.unlinkSync(copy); } catch {} }
+  // Keep the isolated database as evidence; uploaded fixture files have been removed.
   if (report.jsErrors.length) console.log(JSON.stringify(report.jsErrors.slice(0, 10), null, 2));
   process.exit(report.summary.failedChecks || report.summary.visualMismatches || report.summary.jsErrors ? 1 : 0);
 })().catch((e) => {

@@ -49,8 +49,17 @@ class CmsController extends Controller
 
     public function updatePage(Request $request, CmsPage $page)
     {
+        $clean = app(\App\Services\CmsUrls::class)->enabled();
+        $leaf = (string) $request->input('slug', '');
+        if ($clean) {
+            $request->merge(['slug' => app(\App\Services\CmsUrls::class)->validate($leaf, $page->type, $page)]);
+        }
         $data = $request->validate(['title' => 'required|string|max:190', 'description' => 'nullable|string|max:5000', 'slug' => ['nullable', 'string', 'max:190', Rule::unique('cms_pages', 'slug')->ignore($page->id), new \App\Rules\PublicPagePath], 'is_visible' => 'required|boolean', 'seo' => 'nullable|array', 'seo.title' => 'nullable|string|max:190', 'seo.description' => 'nullable|string|max:5000', 'seo.og_title' => 'nullable|string|max:190', 'seo.og_description' => 'nullable|string|max:5000', 'seo.og_image' => 'nullable|string|max:190', 'seo.canonical' => 'nullable|url:http,https|max:500', 'seo.noindex' => 'nullable|boolean', 'listing' => 'nullable|array', 'listing.title' => 'nullable|string|max:190', 'listing.description' => 'nullable|string|max:2000', 'listing.image' => 'nullable|string|max:190', 'listing.image_alt' => 'nullable|string|max:190', 'listing.category' => 'nullable|string|max:100', 'auto_listing' => 'nullable|boolean']);
         $data['slug'] = $data['slug'] ?? '';
+        if ($clean) {
+            $data['public_slug'] = $leaf;
+            unset($data['seo']['canonical']);
+        }
         abort_if(preg_match('~^(admin|api|login|register|sitemap\.xml|robots\.txt)(/|$)~', $data['slug']), 422, 'This URL is reserved.');
         $image = $data['seo']['og_image'] ?? null;
         abort_if($image && ! CmsMedia::where('path', $image)->exists(), 422, 'Select an existing media image.');
@@ -62,6 +71,9 @@ class CmsController extends Controller
         }
         $wasAutomatic = (bool) $page->auto_listing;
         DB::transaction(function () use ($page, $data, $wasAutomatic) {
+            if (array_key_exists('public_slug', $data)) {
+                $page->public_slug = $data['public_slug'];
+            }
             if ($data['slug'] !== $page->slug) {
                 DB::table('cms_redirects')->where('from', $data['slug'])->delete();
                 DB::table('cms_redirects')->where('to', $page->slug)->update(['to' => $data['slug'], 'status' => 301]);
@@ -88,12 +100,34 @@ class CmsController extends Controller
 
     public function createPage(Request $request)
     {
+        $clean = app(\App\Services\CmsUrls::class)->enabled();
+        $sourceType = CmsPage::find($request->input('template_id'))?->type;
+        $leaf = (string) $request->input('slug', '');
+        if ($clean && $sourceType) {
+            if ($leaf === '' && preg_match('/[a-z]/i', (string) $request->input('title')) && ! preg_match('/[^\x00-\x7F]/', (string) $request->input('title'))) {
+                $base = \Illuminate\Support\Str::slug($request->input('title'));
+                $leaf = $base;
+                $suffix = 2;
+                while (CmsPage::where('slug', app(\App\Services\CmsUrls::class)->path($sourceType, $leaf))->exists() || DB::table('cms_redirects')->where('from', app(\App\Services\CmsUrls::class)->path($sourceType, $leaf))->exists()) {
+                    $leaf = $base.'-'.$suffix++;
+                }
+            }
+            app(\App\Services\CmsUrls::class)->validate($leaf, $sourceType);
+            $request->merge(['slug' => $leaf]);
+        }
         $data = $request->validate(['template_id' => 'required|exists:cms_pages,id', 'title' => 'required|string|max:190', 'slug' => ['required', 'unique:cms_pages,slug', 'regex:/^[a-z0-9-]+$/', 'max:150', new \App\Rules\PublicPagePath], 'summary' => 'nullable|string|max:2000', 'image' => ['nullable', 'string', 'max:190', Rule::exists('cms_media', 'path')], 'category' => 'nullable|string|max:100', 'show_in_listing' => 'nullable|boolean', 'add_to_menu' => 'nullable|boolean']);
         $source = CmsPage::with('sections.items')->findOrFail($data['template_id']);
+        if ($clean) {
+            $data['public_slug'] = $leaf;
+            $data['slug'] = app(\App\Services\CmsUrls::class)->path($source->type, $leaf);
+        }
         $new = DB::transaction(function () use ($source, $data) {
             $new = $source->replicate();
             $new->key = 'custom-'.\Illuminate\Support\Str::uuid();
             $new->slug = $data['slug'];
+            if (array_key_exists('public_slug', $data)) {
+                $new->public_slug = $data['public_slug'];
+            }
             $new->title = $data['title'];
             $new->seo = [];
             $new->is_visible = false;
@@ -204,11 +238,16 @@ class CmsController extends Controller
 
     public function item(CmsItem $item)
     {
+        if (\App\Services\CmsMenu::isRetiredItem($item)) {
+            return redirect()->route('cms.menu')->with('success', 'This original navigation record is retained for preservation. Edit the consolidated menu below.');
+        }
+
         return view('cms.item', ['record' => $item, 'section' => $item->section, 'media' => CmsMedia::orderBy('name')->get(), 'linkField' => app(CmsPlacements::class)->roles($item->section, $item)['link'] ?? null, 'linkablePages' => CmsPage::orderBy('title')->get(['id', 'title', 'slug', 'is_visible'])]);
     }
 
     public function updateItem(CmsContentRequest $request, CmsItem $item)
     {
+        abort_if(\App\Services\CmsMenu::isRetiredItem($item), 409, 'Original navigation records are retained read-only. Use the navigation menu.');
         $previous = $item->content;
         $item->update($request->safe()->only(['label', 'position', 'is_visible']) + ['content' => $request->contentFor($item->schema, $item->content)]);
         app(CmsPlacements::class)->afterItemEdited($item, $request->validated('target_page_id') !== null ? (string) $request->validated('target_page_id') : null, $previous);
@@ -230,6 +269,7 @@ class CmsController extends Controller
             return redirect()->route('cms.items.edit', $item)->with('success', 'Item added. Edit its content below.');
         }
         $source = $section->items()->findOrFail($data['source_id']);
+        abort_if(\App\Services\CmsMenu::isRetiredItem($source), 409, 'Use the consolidated navigation menu.');
         $copy = DB::transaction(function () use ($source, $section) {
             $copy = $source->replicate();
             $copy->import_key = null;
@@ -247,6 +287,7 @@ class CmsController extends Controller
 
     public function deleteItem(CmsItem $item)
     {
+        abort_if(\App\Services\CmsMenu::isRetiredItem($item), 409, 'Original navigation records are retained read-only.');
         $id = $item->section_id;
         app(CmsTrash::class)->trashItem($item);
 
@@ -260,12 +301,38 @@ class CmsController extends Controller
 
     public function upload(Request $request)
     {
-        $data = $request->validate(['file' => 'required|file|mimes:jpg,jpeg,png,webp,gif,mp4,pdf|max:20480', 'alt' => 'nullable|string|max:190']);
-        $file = $request->file('file');
-        $path = $file->store('cms', 'public');
-        CmsMedia::create(['path' => '/storage/'.$path, 'name' => $file->getClientOriginalName(), 'mime' => $file->getMimeType(), 'size' => $file->getSize(), 'alt' => $data['alt'] ?? null]);
+        $rule = 'file|mimes:jpg,jpeg,png,webp,gif,mp4,pdf|mimetypes:image/jpeg,image/png,image/webp,image/gif,video/mp4,application/pdf|max:20480';
+        $data = $request->validate(['file' => 'required_without:files|'.$rule, 'files' => 'required_without:file|array|min:1|max:10', 'files.*' => 'required|'.$rule, 'alt' => 'nullable|string|max:190']);
+        $created = [];
+        $stored = [];
+        try {
+            DB::transaction(function () use ($request, $data, &$created, &$stored) {
+                foreach ($request->file('files', $request->hasFile('file') ? [$request->file('file')] : []) as $file) {
+                    $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file->getRealPath());
+                    $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', 'video/mp4' => 'mp4', 'application/pdf' => 'pdf'];
+                    if (! isset($extensions[$mime]) || (str_starts_with($mime, 'image/') && @getimagesize($file->getRealPath()) === false)) {
+                        throw \Illuminate\Validation\ValidationException::withMessages(['file' => 'The file contents do not match a supported image, MP4 or PDF.']);
+                    }
+                    do {
+                        $filename = \Illuminate\Support\Str::random(40).'.'.$extensions[$mime];
+                    } while (Storage::disk('public')->exists('cms/'.$filename));
+                    $path = $file->storeAs('cms', $filename, 'public');
+                    $stored[] = $path;
+                    $created[] = CmsMedia::create(['path' => '/storage/'.$path, 'name' => mb_substr(basename(str_replace('\\', '/', $file->getClientOriginalName())), 0, 190), 'mime' => $mime, 'size' => $file->getSize(), 'alt' => $data['alt'] ?? null]);
+                }
+            });
+        } catch (\Throwable $error) {
+            foreach ($stored as $path) {
+                Storage::disk('public')->delete($path);
+            } throw $error;
+        }
+        if ($request->expectsJson()) {
+            $request->session()->flash('success', 'Media uploaded. Choose the image in a content editor or use Replace to assign it.');
 
-        return back()->with('success', 'Media uploaded.');
+            return response()->json(['message' => 'Media uploaded. Choose an image to assign it to content.', 'media' => $created], 201);
+        }
+
+        return back()->with('success', 'Media uploaded. Choose the image in a content editor or use Replace to assign it.');
     }
 
     public function updateMedia(Request $request, CmsMedia $media)
@@ -280,6 +347,7 @@ class CmsController extends Controller
         abort_if($media->is_original, 422, 'Original design assets are preserved.');
         $used = app(\App\Services\CmsMediaReferences::class)->isUsed($media->path);
         abort_if($used, 422, 'This file is still used by website content.');
+        abort_unless(preg_match('~^/storage/cms/[a-zA-Z0-9_-]+\.(?:jpg|jpeg|png|gif|webp|mp4|pdf)$~D', $media->path), 422, 'Invalid managed storage path.');
         Storage::disk('public')->delete(substr($media->path, 9));
         $media->delete();
 

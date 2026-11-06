@@ -7,8 +7,9 @@
 <div class="col-md-6"><label class="form-label" for="field-{{ $key }}" dir="auto">{{ \App\Support\CmsLabels::field($field) }}</label>
 @if($field['type']==='boolean')<select class="form-select" id="field-{{ $key }}" name="content[{{ $key }}]"><option value="1" @selected($value!=='0')>Yes</option><option value="0" @selected($value==='0')>No</option></select>
 @elseif($field['type']==='message' || ($field['type']==='text' && (mb_strlen($value)>100 || str_contains($value,"\n"))))<textarea dir="auto" rows="{{ $field['type']==='message' ? 2 : 4 }}" class="form-control" id="field-{{ $key }}" name="content[{{ $key }}]">{{ $value }}</textarea>
+@elseif($field['type']==='image')@include('cms.media-field',['id'=>'field-'.$key,'name'=>'content['.$key.']','value'=>$value])
 @else<input dir="auto" class="form-control" id="field-{{ $key }}" name="content[{{ $key }}]" value="{{ $value }}" @if($field['type']==='link') list="website-pages" @endif>@endif
-@if($field['type']==='image')<select class="form-select mt-2" data-media-select="field-{{ $key }}"><option value="">Select media</option>@foreach($media->filter(fn($m)=>str_starts_with($m->mime,'image/')) as $file)<option value="{{ $file->path }}" @selected($value===$file->path)>{{ $file->name }}</option>@endforeach</select><img id="preview-field-{{ $key }}" src="{{ $value }}" alt="Preview" class="img-thumbnail mt-2" style="max-height:120px" @if(!$value) hidden @endif>@endif
+
 @error('content.'.$key)<div class="text-danger">{{ $message }}</div>@enderror</div>
 @endforeach
 </div><datalist id="website-pages">@foreach(\App\Models\CmsPage::all() as $linkPage)<option value="/{{ $linkPage->slug }}">{{ $linkPage->title }}</option>@endforeach</datalist>

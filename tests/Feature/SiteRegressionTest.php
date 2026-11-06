@@ -101,6 +101,11 @@ class SiteRegressionTest extends CmsFeatureTestCase
             }
         }
         foreach (CmsItem::all() as $item) {
+            if (\App\Services\CmsMenu::isRetiredItem($item)) {
+                $this->get(route('cms.items.edit', $item))->assertRedirect(route('cms.menu'));
+
+                continue;
+            }
             $this->get(route('cms.items.edit', $item))->assertOk();
         }
     }
@@ -121,7 +126,7 @@ class SiteRegressionTest extends CmsFeatureTestCase
         $this->assertTrue($admin->IsSuper());
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check('first-cli-password', $admin->password));
         $token = $admin->remember_token;
-        $this->artisan('website:admin', ['email' => 'cli@example.test', '--name' => 'CLI owner'])->expectsQuestion('Password (at least 12 characters)', 'second-cli-password')->assertExitCode(0);
+        $this->artisan('website:admin', ['email' => 'cli@example.test', '--name' => 'CLI owner'])->expectsConfirmation('This administrator already exists. Replace its password, name and role?', 'yes')->expectsQuestion('Password (at least 12 characters)', 'second-cli-password')->assertExitCode(0);
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check('second-cli-password', $admin->fresh()->password));
         $this->assertNotSame($token, $admin->fresh()->remember_token);
     }
@@ -145,7 +150,7 @@ class SiteRegressionTest extends CmsFeatureTestCase
                 continue;
             }
             $action = $route->getActionMethod();
-            $this->assertMatchesRegularExpression('~^(dashboard|pages|page|globals|section|item|media|submissions|index|edit|messages)$~', $action, $route->uri());
+            $this->assertMatchesRegularExpression('~^(dashboard|pages|page|globals|section|item|media|submissions|index|edit|messages|picker|show)$~', $action, $route->uri());
         }
     }
 

@@ -8,9 +8,11 @@ const seed=JSON.parse(fs.readFileSync('database/content/website.json','utf8'));c
 for(const file of templates){const text=fs.readFileSync(file,'utf8').replace(/\{\{[\s\S]*?\}\}/g,'').replace(/@[^\n]+/g,'');if(/[\u0600-\u06ff]/.test(text))hardcoded.push(file);}
 const report={originalAssetsUnchanged:identical,missingAssets:missing,unexpectedAssetChanges:changed,generatedTemplates:templates.length,hardcodedArabicContentTemplates:hardcoded,pageRecords:seed.pages.length,sections:seed.sections.length+2,initialItems:seed.sections.reduce((n,s)=>n+s.items.length,0)+seed.rotator.length};
 fs.mkdirSync('storage/app/cms-verification',{recursive:true});fs.writeFileSync('storage/app/cms-verification/content-audit.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
+if (!process.argv.includes('--read-only')) {
 fs.mkdirSync('docs',{recursive:true});let doc='# Frontend content map\n\nSource: `C:/laragon/www/dr.mohamed-baz`. Destination: `C:/laragon/www/elbaz_laravel`.\n\nEvery row is imported as structured fields and relational collection items. Templates contain the original markup; the database supplies the content. `website:upgrade` replaces the header\'s six fixed navigation groups with one menu (Main navigation and its dropdown items).\n\n| Page | Public URL | Sections |\n|---|---|---|\n';
 for(const p of seed.pages)doc+=`| ${p.title.replaceAll('|',' / ')} | /${p.slug} | ${seed.sections.filter(s=>s.page_key===p.key).length} |\n`;
 doc+='\n## Sections and collections\n\n| Page / shared area | Section | Collections |\n|---|---|---|\n';for(const s of seed.sections)doc+=`| ${s.page_key||'Shared'} | ${s.label.replaceAll('|',' / ')} | ${s.groups.map(g=>g.label.replaceAll('|',' / ')+(g.parent_group?' (nested)':'')).join('; ')||'Typed content fields'} |\n`;
 doc+='| Shared | Website identity and contact settings | Typed global fields and optional favicon |\n| Shared | Home article carousel | Ordered slides with image, title, description and destination |\n';
 fs.writeFileSync('docs/FRONTEND_MAP.md',doc);
+}
 if(missing.length||changed.length||hardcoded.length)process.exitCode=1;

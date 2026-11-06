@@ -127,7 +127,7 @@ class WebsiteCmsTest extends TestCase
     {
         $this->actingAs($this->owner(), 'admin');
         $section = CmsSection::where('key', 'global-header')->first();
-        $item = $section->items->first(fn ($i) => in_array('index.html', $i->content, true));
+        $item = $section->items->first(fn ($i) => $i->group_key === \App\Services\CmsMenu::TOP && in_array('index.html', $i->content, true));
         $this->assertNotNull($item);
         $content = $item->content;
         $k = collect($item->schema)->search(fn ($f) => $f['type'] === 'text');

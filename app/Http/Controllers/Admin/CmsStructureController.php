@@ -66,6 +66,7 @@ class CmsStructureController extends Controller
 
     public function moveItem(Request $request, CmsItem $item)
     {
+        abort_if(\App\Services\CmsMenu::isRetiredItem($item), 409, 'Original navigation records are retained read-only.');
         $data = $request->validate(['direction' => 'required|in:up,down']);
         $siblings = CmsItem::where('section_id', $item->section_id)->where('group_key', $item->group_key)->where('parent_id', $item->parent_id)->orderBy('position')->orderBy('id')->get();
         $this->move($siblings, $item, $data['direction']);
@@ -75,6 +76,7 @@ class CmsStructureController extends Controller
 
     public function itemVisibility(Request $request, CmsItem $item)
     {
+        abort_if(\App\Services\CmsMenu::isRetiredItem($item), 409, 'Original navigation records are retained read-only.');
         $data = $request->validate(['is_visible' => 'required|boolean']);
         $item->update($data);
 
@@ -96,6 +98,7 @@ class CmsStructureController extends Controller
     /** Drops a placement's customisations so it follows its page again. */
     public function resetPlacement(CmsItem $item, CmsPlacements $placements)
     {
+        abort_if(\App\Services\CmsMenu::isRetiredItem($item), 409, 'Original navigation records are retained read-only.');
         $page = CmsPage::findOrFail($item->target_page_id);
         $item->update(['overrides' => []]);
         $placements->syncPage($page);

@@ -43,6 +43,9 @@ class CmsPlacements
         $linked = 0;
         $items = CmsItem::with('section')->get();
         foreach ($items as $item) {
+            if (CmsMenu::isRetiredItem($item)) {
+                continue;
+            }
             if ($item->target_page_id || $item->detached_from) {
                 continue;
             }
@@ -238,6 +241,9 @@ class CmsPlacements
             $content[$field] = $this->links->follow($content[$field] ?? '', $page);
         } else {
             $page = $this->links->pageFor($content[$field] ?? null, CmsPage::all()->keyBy('slug'));
+            if ($page?->public_slug !== null && $page) {
+                $content[$field] = $this->links->follow($content[$field] ?? '', $page);
+            }
         }
         $item->fill([
             'content' => $content,

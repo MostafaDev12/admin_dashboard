@@ -1,5 +1,7 @@
 # CMS completion report
 
+Subsequent local activation, 6 November 2026: the working SQLite database has now been migrated and verified, with all existing item/media rows retained and an owner account created. See [CMS_LOCAL_ACTIVATION_REPORT.md](CMS_LOCAL_ACTIVATION_REPORT.md). The not-yet-activated status and old consolidation counts below are the historical 5 November results.
+
 Date: **5 November 2026 (Africa/Cairo)**. Application: `C:/laragon/www/elbaz_laravel`. Visual source: `C:/laragon/www/dr.mohamed-baz` (not modified).
 
 This report continues from the [independent final audit](CMS_FINAL_AUDIT.md). How to run and use the CMS is in the [implementation guide](CMS_IMPLEMENTATION.md).

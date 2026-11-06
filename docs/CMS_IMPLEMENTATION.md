@@ -1,5 +1,7 @@
 # Website CMS implementation
 
+Local activation update, 6 November 2026: the existing SQLite database has now received the third CMS migration and the non-destructive upgrade. The owner account exists. See [the local activation report](CMS_LOCAL_ACTIVATION_REPORT.md) for current backups, preservation checks, test results and remaining limits; earlier setup/upgrade status below describes the original installation.
+
 The [completion report](CMS_COMPLETION_REPORT.md) is the current status, including what still needs owner approval. The [independent final audit](CMS_FINAL_AUDIT.md) records the findings it addresses.
 
 The application destination is `C:/laragon/www/elbaz_laravel`. The original static source is `C:/laragon/www/dr.mohamed-baz`; it was not modified. Laravel 10.48.14 and the existing Velzon assets are used. No application dependency upgrades were required.

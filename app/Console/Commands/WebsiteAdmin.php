@@ -19,13 +19,18 @@ class WebsiteAdmin extends Command
 
             return self::FAILURE;
         }
+        $admin = Admin::firstOrNew(['email' => $email]);
+        if ($admin->exists && ! $this->confirm('This administrator already exists. Replace its password, name and role?', false)) {
+            $this->warn('Existing administrator was not changed.');
+
+            return self::FAILURE;
+        }
         $password = $this->secret('Password (at least 12 characters)');
         if (mb_strlen($password ?? '') < 12) {
             $this->error('Use at least 12 characters.');
 
             return self::FAILURE;
         }
-        $admin = Admin::firstOrNew(['email' => $email]);
         $admin->name = $this->option('name');
         $admin->role_id = 0;
         $admin->changePassword($password);
